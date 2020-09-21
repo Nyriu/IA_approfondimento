@@ -1,0 +1,68 @@
+%!TEX TS-program = pdflatex
+%!TEX root = main.tex
+%!TEX encoding = UTF-8 Unicode
+\def \NUMSLIDES {123}
+
+\section{SET DI SLIDE ESEMPIO}
+
+\slide{23}
+\lipsum[1]
+
+
+\slide{26}
+\exercise{1}
+\lipsum[1]
+\exercise{2}
+\lipsum[2]
+
+\slide{60}
+
+
+\begin{table}[!htb]
+  \caption{Caption generale}
+  \begin{adjustwidth}{0cm}{} % dx / sx
+
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \vspace{-2.2em} % alzo / abbasso
+      \begin{tabular}{l|l|l}
+        Molte    & Robe   & Belle    \\ \hline
+        Mica     & Tanto  & \dots    \\
+      \end{tabular}
+
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+      \centering
+      \begin{tabular}{l|l|l}
+        Molte    & Robe   & Belle    \\ \hline
+        Mica     & Tanto  & \dots    \\
+        Molte    & Robe   & Belle    \\ \hline
+        Mica     & Tanto  & \dots    \\
+      \end{tabular}
+
+    \end{minipage} 
+  \end{adjustwidth}
+\end{table}
+
+
+\begin{figure}[!htb]
+  \centering
+  \begin{tabular}[t]{cc}
+    \begin{subfigure}{0.4\textwidth}
+      \centering
+      \includegraphics[width=0.9\linewidth]{example-image-a}
+      \captionsetup{width=0.9\linewidth}
+      \caption{Img dx}
+      %\label{fig:}
+    \end{subfigure}
+    &
+    \begin{subfigure}{0.4\textwidth}
+      \centering
+      \includegraphics[width=0.9\textwidth]{example-image-a}
+      \captionsetup{width=.9\linewidth}
+      \caption{Img dx}
+      %\label{fig:}
+    \end{subfigure}
+  \end{tabular}
+  \caption{Caption generale}
+\end{figure}

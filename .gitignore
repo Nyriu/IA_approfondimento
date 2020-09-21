@@ -11,3 +11,5 @@
 *.run.xml
 *.run.xml
 *.*busy*
+
+papers/*
