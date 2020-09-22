@@ -33,13 +33,19 @@ Notare come $G$ sia in grado di mappare del rumore casuale nello spazio delle \e
   \caption{Architettura di una generica GAN (dalle slide in \cite{MIT_GEN})}
   \label{fig:gan}
 \end{figure}
-Rispetto ai $VAE$ le $GAN$ risultano non solo più intuitive ma permettono anche di raggiungere prestazioni veramente sorprendendo, come si può vedere il \cit{GAN_HD}, in cui anche gli esperti umani hanno 
+Rispetto ai $VAE$ le $GAN$ risultano non solo più intuitive ma permettono anche di raggiungere prestazioni veramente sorprendenti, come si può vedere in \cite{GAN_HD}, in cui anche gli esperti umani vengono ingannati dai prodotti della rete.
 
-
+Va fatto notare però che le GAN sono notoriamente difficili da allenare %\cite{HARD_GAN}
+\todo{leggere xke GAN difficili}
+, basti pensare che prima dell'allenamento entrambe le sotto-reti non hanno alcuna conoscenza del dominio e si chiede loro di guidarsi a vicenda.
+Se il discriminatore converge rapidamente è possibile che dia una valutazione così bassa al generatore da causare il \emph{vanishing gradient problem}, rendendo quindi impossibile che $G$ possa migliorarsi.
+Un altro problema noto è quello del \emph{model collapse} che si verifica quando $G$ riproduce molto bene soltanto una piccola frazione del dominio.
+In questo modo riesce ad ottenere punteggi molto alti ma a discapito della generalità.
 
 
 % L'efficacia di questa tecnica e' lampante quando si parla di immagini...
 %In questo caso si fa riferimento alla possibilità di utilizzare le GAN come generatori di immagini sintetiche indistinguibili da quelle reali, in \cite{GAN_HD} si può osservare il livello di dettaglio impressionante che queste reti sono in grado di produrre.
 
 
+\todo[inline]{aggiungere robe dal paper originale se si deve allungare}
 

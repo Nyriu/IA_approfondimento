@@ -1,0 +1,60 @@
+%!TEX TS-program = pdflatex
+%!TEX root = main.tex
+%!TEX encoding = UTF-8 Unicode
+
+
+\section{RL}
+Il \emph{Reinforcement Learning} (RL) assieme al \emph{Supervised Learning} ed al \emph{Unsupervised Learning} è il terzo paradigma di apprendimento autonomo.
+Gli ultimi due paradigmi sfruttano un dataset, rispettivamente con e senza label, per portare a termine un specifico task oppure generare nuova informazione.
+Nel caso del RL il dataset viene sostituito con un ambiente (\emph{environment}) nel quale il modello può eseguire delle azioni e osservarne le conseguenze, quindi come l'ambiente viene modificato dall'azione.
+In questo paradigma il modello viene anche chiamato ``agente'' e l'elenco, discreto oppure continuo, delle azioni eseguibili prende il nome di \emph{action space}.
+L'agente impara grazie ad un \emph{reward}, positivo o negativo, associato al risultato delle sue azioni.
+Il suo obbiettivo è quello di massimizzare la somma dei \emph{reward} sul lungo termine, quindi si vuole che scopra e adotti una strategia (\emph{policy}) efficace nell'ambiente considerato.
+Poiché è necessario svolgere numerose iterazioni del tipo \emph{trail-and-error} e considerato che solitamente un fallimento corrisponde anche ad una grande acquisizione di informazione, bisogna creare degli \emph{environment} virtuali che siano il più vicino possibile al dominio di applicazione finale e che permettano un'esecuzione rapida e senza costi aggiuntivi.
+%
+%\todo{ampliare intro?} % TODO
+%\todo{esempi con ref?} % TODO
+
+Riprendendo quanto illustrato in \cite{MIT_RL} ed in \cite{Simple_RL}, una prima modellazione sfrutta una funzione che valuta la qualità dell'azione svolta 
+$$
+Q(s_t, a_t) = \E [ R_t | s_t, a_t]
+$$
+in cui 
+$s_t$ è lo stato corrente cioè come l'ambiente si presenta all'agente,
+$a_t$ è l'azione che l'agente svolge all'istante $t$,
+mentre a destra dell'uguale si ha il valore atteso del \emph{reward} totale $R_t$ che l'agente potrà ricevere in futuro, quindi negli $s_{t+i}$ con $i=1,2,\dots$, se esegue $a_t$ in $s_t$.
+Calcolare $R_t$ risulta critico perché la sua naturale definizione è
+$$
+R_t = \sum_{i=t}^{\inf} \gamma^i r_i = 
+$$
+in cui $0 < \gamma < 1$  viene chiamato \emph{discount factor} ed indica la \emph{greediness} del modello. \todo{spiegare meglio in caso}
+In questa casistica risulta utile approssimare $Q(s,a)$ con una rete neurale, in questo modo si evita di dover fissare a mano un \emph{hyperparameter} come ad esempio il numero di somme da effettuare per approssimare $R_t$.
+L'idea è fornire alla rete, detta anche \emph{Q-Network} \cite{DQN}, lo stato corrente ed ogni possibile azione lecita e successivamente scegliere l'azione a cui la rete assegna il valore più alto.
+Procedendo in questo per ogni stato che si incontra è possibile seguire una policy $\pi(s)$ ottimale ad ogni passo, quindi complessivamente si è trovata una strategia ottimale che porta al guadagno massimo sul lungo periodo.
+
+\todo[inline]{qui mettere loss function e spiegarla}
+
+L'approccio appena presentato richiede che l' \emph{action space} sia discreto e di dimensione ridotta, altrimenti sarebbe impossibile iterare su tutte le azioni per selezionarne la migliore.
+Per ovviare a questo problema si possono utilizzare modelli che provano ad ottimizzare direttamente la \emph{policy} $\pi(s)$, questi modelli prendono il nome di \emph{Policy Learning} e vengono allenati tramite il \emph{Policy Gradient}. \todo{cite paper?}
+L'idea principale è approssimare $\pi$ con una distribuzione di probabilità, in questo modo risulta naturale utilizzare un \emph{action space} continuo, inoltre si può ottenere una strategia non deterministica, quindi più flessibile e con maggiori capacità esplorative durante il training.
+Dato uno stato $s$ l'azione $a$ verrà estratta secondo:
+%$$
+%a = 
+%\pi(s) \sim P(a|s) \quad\textrm{in cui } \sum_{a_i \in A} P(a_i | s) = 1 \quad\textrm{con $A$ \emph{action space}}
+%$$
+$$
+a = 
+\pi(s) \sim P(a|s) \quad\textrm{in cui } \int_{a = - \inf}^{\inf} P(a | s) = 1
+$$
+poiché $P(a|s)  = \mathcal{N}(\mu,\sigma ^2)$
+
+
+
+
+
+
+
+
+
+
+
