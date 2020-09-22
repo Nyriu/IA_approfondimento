@@ -34,8 +34,9 @@ Procedendo in questo per ogni stato che si incontra è possibile seguire una pol
 
 \todo[inline]{qui mettere loss function e spiegarla}
 
-L'approccio appena presentato richiede che l' \emph{action space} sia discreto e di dimensione ridotta, altrimenti sarebbe impossibile iterare su tutte le azioni per selezionarne la migliore.
+L'approccio appena presentato richiede che l' \emph{action space} sia discreto e di dimensione ridotta, altrimenti sarebbe impossibile o molto costoso iterare su tutte le azioni per selezionarne la migliore.
 Per ovviare a questo problema si possono utilizzare modelli che provano ad ottimizzare direttamente la \emph{policy} $\pi(s)$, questi modelli prendono il nome di \emph{Policy Learning} e vengono allenati tramite il \emph{Policy Gradient}. \todo{cite paper?}
+In questo modo è possibile ottenere direttamente l'azione migliore a partire soltanto dallo stato.
 L'idea principale è approssimare $\pi$ con una distribuzione di probabilità, in questo modo risulta naturale utilizzare un \emph{action space} continuo, inoltre si può ottenere una strategia non deterministica, quindi più flessibile e con maggiori capacità esplorative durante il training.
 Dato uno stato $s$ l'azione $a$ verrà estratta secondo:
 %$$
@@ -46,15 +47,19 @@ $$
 a = 
 \pi(s) \sim P(a|s) \quad\textrm{in cui } \int_{a = - \inf}^{\inf} P(a | s) = 1
 $$
-poiché $P(a|s)  = \mathcal{N}(\mu,\sigma ^2)$
+Poiché $P(a|s)  = \mathcal{N}(\mu,\sigma ^2)$ si può fare in modo che la rete dia in output direttamente il vettore della medie $\mu$ e il vettore delle varianze $\sigma^2$.
+L'allenamento inizia con l'inizializzazione dell'agente e dell'ambiente, poi l'agente segue la sua policy corrente fino a terminazione, tutti gli stati, le azioni e i reward vengono registrati.
+Infine si aumenta la probabilità delle azioni che hanno portato a reward positivi e si decrementa la probabilità delle azioni con reward negativo, fatto ciò si effettua nuovamente l'inizializzazione in modo da valutare la policy aggiornata. 
+Notare che definire il concetto di "terminazione" non è sempre ovvio e può corrispondere, ad esempio, all'esecuzione di un numero limitato di azioni oppure al ricevimento di un grande reward negativo.
+L'aggiornamento dei pesi della rete, quindi della policy, viene effettuato tramite \emph{gradient descent} usando la \emph{loss}
+$$
+loss = - log P(a_t | s_t ) R_t
+$$
+Il logaritmo indica la probabilità logaritmica con cui $a_t$ viene scelta allo stato $s_t$ mentre $R_t$ è il reward totale già incontrato precedentemente.
+Se $R_t$ è positivo allora converrà aumentare la probabilità di selezionare $a_t$, viceversa quando è negativo conviene diminuire la probabilità.
+Il \emph{Policy Gradient} è il gradiente relativo a questa particolare \emph{loss}.
 
-
-
-
-
-
-
-
-
-
+\todo[inline]{TODO più matematicoso con spiegazione calcolo $R_t$}
+\todo[inline]{TODO introdurre REINFORCE?}
+\todo[inline]{TODO esempio Alpha GO, Alpha Zero e Hide and Seek}
 

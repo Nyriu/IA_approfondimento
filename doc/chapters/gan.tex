@@ -27,6 +27,7 @@ Quindi il training viene svolto in quattro momenti:
   \item con l'output del discriminatore è possibile determinare anche la prestazione di $G$, infatti se questo è riuscito a confondere $D$ significa che sta raggiungendo una buona conoscenza del dominio.
 \end{itemize}
 Notare come $G$ sia in grado di mappare del rumore casuale nello spazio delle \emph{feature} del dominio e che quindi, una volta allenato, possa essere sfruttato molto facilmente: basterà avere del rumore da cui partire.
+Si può quindi dire che $G$ opera come il decoder di un AE con un particolare spazio latente molto semplice.
 \begin{figure}[ht]
   \centering
   \includegraphics[width=.7\textwidth]{GAN/arch.png}
@@ -49,3 +50,9 @@ In questo modo riesce ad ottenere punteggi molto alti ma a discapito della gener
 
 \todo[inline]{aggiungere robe dal paper originale se si deve allungare}
 
+$$
+min_G max_D V(D,G) = \E_{x \sim P_real(x)} [ log D(x) ] 
++
+\E_{z \sim P_z(x)} [ log ( 1 - D(G(x)) ]
+$$ 
+\todo{inserire formula per chiarire training e obj}
