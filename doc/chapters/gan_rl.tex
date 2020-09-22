@@ -6,9 +6,44 @@
 \section{GAN+RL per testi}
 \todo[inline]{fare intro RNN? LSTM?}
 In questa sezione vengono illustrati due modelli capaci di generare testi sintetici sfruttando un'architettura GAN in cui $G$ viene allenato attraverso \emph{reinforcement learning} .
-Il primo modello, chiamato SeqGAN, è stato presentato in \cite{SeqGAN} ed illustrato anche in \cite{GAN_for_text}; il secondo è evoluzione del primo, prende il nome di LeakGAN ed è descritto in \cite{LeakGAN}.
-% Sono particolarmente interessanti perché con SeqGAN si risolve  % TODO se serve
+Il primo modello, chiamato SeqGAN, è stato presentato in \cite{SeqGAN} ed illustrato anche in \cite{GAN_for_text}; il secondo è evoluzione del primo, permette di generare testi più lunghi, prende il nome di LeakGAN ed è descritto in \cite{LeakGAN}.
+\todo[inline]{Sono particolarmente interessanti perché con SeqGAN si risolve} % TODO se serve
 
-\subsection{LeakGAN}
+\subsection{SeqGAN}
+Come riportato nell'introduzione dell'articolo \cite{SeqGAN}, per generare frasi che siano verosimili è necessario allenare un discriminatore che valuti frasi intere e che assegni a queste un punteggio.
+Purtroppo ciò rende molto difficile allenare il generatore, perché non è possible determinare se un punteggio basso corrisponde all'intera struttura della frase oppure soltanto ad una o poche parole.
+La problematica è ancora più evidente nel caso in cui il generatore è una RNN \todo{mai introdotte per ora, TODO da fare sopra}
+rendendo difficile, ad esempio aggiornare efficacemente il modo con cui vengono create le parti iniziali di frasi.
+
+Le SeqGAN affrontano il problema in un modo molto interessante: se si considera il punteggio che $D$ fornisce alle frasi come \emph{reward} per $G$ e se questo utilizza come stato la frase generata fino ad ora e come azione la scelta della parola successiva, allora è possibile sfruttare il \emph{Policy Gradient} sul generatore.
+Di fondamentale importanza la \emph{Monte Carlo Search} che viene effettuata per valutare la bontà di frasi incomplete, così da alterare efficacemente la distribuzione della parola che ancora deve essere scelta: 
+durante la generazione di una frase, $G$ non può ricevere una valutazione da $D$ perché il discriminatore è in grado di valutare soltanto frasi intere % TODO fare osservazione? % (una frase incompleta sarà sempre poco verosimile 
+quindi vengono generate $N$ frasi con prefisso la frase generata fino ad ora.
+Si sfrutta poi $D$ per valutare tutte le $N$ frasi e si effettua una media dei \emph{reward} ottenuti, così si ottiene il valore atteso della bontà della frase che si sta generando.
+Ci si riferisce a questo furbo accorgimento come \emph{Monte Carlo state-action search}.
+
+Riprendendo i formalismi usati nell'articolo si ha:
+\begin{itemize}
+  \item un modello generativo $G_\theta$, $\theta$ indica i parametri interni, in grado di generare sequenze $Y_{1:T} = ( y_1, \dots , y_t, \dots , y_T)$ con gli $y_t$ appartenenti all'insieme dei token validi $\T$;
+  \item al tempo $t$ lo stato $s$ equivale ai token prodotti fino ad ora $(y_1, \dots , y_{t-1})$ mentre l'azione $a$ è il prossimo token da selezionare $y_t$;
+  \item con $G_\theta (y_t | Y_{1 : t-1} )$ si indica il modello non deterministico descritto.
+
+  \item Il modello discriminativo $D_\phi$ con parametri $\phi$ in grado di fornire la probabilità $D_\phi ( Y_{1:T})$ che $Y_{1:T}$ sia stato estratto dai dati reali.
+\end{itemize}
+% TODO \todo[inline]{qui immagine rete?}
+
+Prima di continuare con la \emph{loss function} e la formulazione della \emph{Monte Carlo search}, 
+va sottolineato che il modello RNN è leggermente diverso da quello classico, infatti ad ogni passo la rete prende in input il token generato al passo precedente (invece di riceverlo dall'esterno), si può quindi dire che assomigli ai modelli RNN usati come decoder durante la traduzione di testi.
+%Notare anche che la codifica interna 
+Si fa presente che lo stato di partenza è TODO e l'input è parte da \todo[inline]{partenza con $s_0$ come viene fatta? $h_0$ com'è?}
+Si può notare come questa sia la rivisitazione del tipico input randomico $z$ di una generica GAN.
+TODO
+
+
+
+
+
+
+
 
 
