@@ -37,7 +37,9 @@ http://rail.eecs.berkeley.edu/deeprlcourse/
 
 TODO get RL paper
 TODO get Deep RL paper
-TODO get Deep Q-Learning paper
+
+https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
+
 TODO get Deep Policy Learning paper
 
 
