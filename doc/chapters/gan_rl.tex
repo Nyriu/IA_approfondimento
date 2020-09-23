@@ -35,6 +35,7 @@ Riprendendo i formalismi usati nell'articolo si ha:
 Prima di continuare con la \emph{loss function} e la formulazione della \emph{Monte Carlo search}, 
 va sottolineato che il modello RNN è leggermente diverso da quello classico, infatti ad ogni passo la rete prende in input il token generato al passo precedente anziché riceverlo dall'esterno.
 Si può quindi dire che assomigli ai modelli RNN usati come decoder durante la traduzione di testi, nei quali lo stato interno e l'ultima parola tradotta vengono utilizzati per aggiornare lo stato e generare la parola successiva.
+\todo{add ref to \url{https://arxiv.org/pdf/1506.03099v1.pdf}}
 %Notare anche che la codifica interna 
 Si fa presente che lo stato di partenza è TODO e l'input è parte da \todo[inline]{partenza con $s_0$ come viene fatta? $h_0$ com'è?}
 Si può notare come questa sia la rivisitazione del tipico input randomico $z$ di una generica GAN.
@@ -93,7 +94,53 @@ min_\phi
 - \E_{Y \sim p_{real}} [ log D_\phi (Y) ]
 - \E_{Y \sim G_\theta} [ log ( 1 - D_\phi(Y))]
 $$
-\todo{se tempo si può riportare schema algoritmo (appendice?)}
-\todo[inline]{TODO spiegare cos'è il pre-train e come viene fatto}
+\todo[inline]{riportare schema algoritmo}
+
+È molto importante sottolineare il \emph{pre-train} effettuato per inizializzare la SeqGAN con alcune conoscenze basilari.
+In questo modo $G$ e $D$ saranno già capaci di svolgere i loro compiti e potranno migliorarsi più efficacemente.
+Il \emph{pre-train} del generatore viene effettuato usando la \emph{Maximum Likelihood Estimation}(MLE) sul dataset di sequenze reali, $G$ tenterà quindi di imitare nel miglior modo possibile la distribuzione dei token delle sequenze date.
+Mentre $D$ viene allenato come un classificatore attraverso la \emph{cross entropy loss} \todo{sigla? Formula?}
+su dati reali e dati generati dal $G$ appena creato.
+Ovviamente il \emph{train} di $D$ viene sempre effettuato su un insieme di sequenze per metà generato e per metà reale, così da non introdurre sbilanciamenti nelle probabilità.
+\todo[inline]{già che si parla di $D$ cfr. a paper con CNN?}
+
+In \cite{SeqGAN} vengono utilizzate anche tecniche come \emph{Dropout} e \emph{L2 regularization} per evitare l' \emph{over-fitting.} \todo{ripassare L2}
+Nell'articolo è possibile trovare una valutazione dettagliata delle prestazioni delle SeqGAN rispetto ad altri modelli e su tre casi d'uso differenti.
+
+
+\subsection{LeakGAN}
+Le LeakGAN sono state create per far fronte alla principale debolezza delle SeqGAN, ossia la difficoltà nel generare sequenze lunghe che siano convincenti.
+Se gli esperimenti delle SeqGAN mostravano affidabilità con sequenze fino a 20 token, le LeakGAN riescono a raggiungere lunghezze di 40 token, pur mantenendo coerenza e verosimiglianza.
+Queste reti vengono presentate in \cite{LeakGAN} e si differenziano dalle precedenti per due motivi:
+\begin{itemize}
+  \item si introduce una ``perdita'' (\emph{leak}) di informazione dal discriminatore al generatore.
+    Le \emph{feature} che il primo estrae e su cui poi baserà la valutazione vengono fornite al secondo in modo da ricevere un'informazione molto più ricca di un semplice punteggio; 
+  \item si introduce anche un nuovo modulo all'interno del generatore in modo da elaborare l'informazione che giunge da $D$ ed utilizzarla per poi decidere il token successivo.
+\end{itemize}
+
+\todo[inline]{inserire immagine rete TODO}
+
+Va subito fatto notare come la seconda modifica renda il generatore un generatore gerarchico, quindi composto da sottomoduli con specifici compiti.
+È altrettanto importante sottolineare che i sotto-compiti che il Manager richiede al Worker sono auto-determinati, infatti il Manger è in grado di richiedere punteggiature e particolari strutture.
+
+La \emph{Linear Projection} presente nello schema effettua una trasformazione lineare $\psi$, con pesi $W_\psi$, su un numero $c$ di goal $g_t$ recenti, così da generare un vettore $w_t$ di dimensione adeguata per l'esecuzione del prodotto con $O_t$.
+I formule si ha
+\begin{align}
+  w_t &= \psi \left( \sum_{i=1}^{c} g_{t-1} \right)
+  \\
+  O_t, h_t &= Worker(x_t, h_{t-1}; \theta)
+  \\
+  G_\theta(\cdot|s_t) &= softmax ( O_t \cdot w_t / \alpha)
+\end{align}
+in cui $h_t$ è \emph{hidden state} del Worker, mentre $\alpha$ viene usato per bilanciare esplorazione e sfruttamento (\emph{exploration and exploitation}).
+In generale avrà un valore alto durante il \emph{training} per favorire l'esplorazione, avrà invece un valore basso durante la generazione di quelle sequenze che poi verranno usate per allenare $D$.
+
+\todo{sezione su train G? Rescaled $R_t$?}
+
+
+Un'altra importante modifica riguarda l'\emph{interleaved training}: si alternano allenamento tramite GAN ed allenamento tramite metodo supervisionato (MLE), anziché effettuare soltanto GAN dopo il \emph{pre-train}.
+Questo evita il \emph{mode collapse} obbligando $G$ a rimanenre aderente alla vera dispribuzione degli esempi reali 
+
+TODO qua
 
 
