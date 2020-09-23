@@ -33,17 +33,67 @@ Riprendendo i formalismi usati nell'articolo si ha:
 % TODO \todo[inline]{qui immagine rete?}
 
 Prima di continuare con la \emph{loss function} e la formulazione della \emph{Monte Carlo search}, 
-va sottolineato che il modello RNN è leggermente diverso da quello classico, infatti ad ogni passo la rete prende in input il token generato al passo precedente (invece di riceverlo dall'esterno), si può quindi dire che assomigli ai modelli RNN usati come decoder durante la traduzione di testi.
+va sottolineato che il modello RNN è leggermente diverso da quello classico, infatti ad ogni passo la rete prende in input il token generato al passo precedente anziché riceverlo dall'esterno.
+Si può quindi dire che assomigli ai modelli RNN usati come decoder durante la traduzione di testi, nei quali lo stato interno e l'ultima parola tradotta vengono utilizzati per aggiornare lo stato e generare la parola successiva.
 %Notare anche che la codifica interna 
 Si fa presente che lo stato di partenza è TODO e l'input è parte da \todo[inline]{partenza con $s_0$ come viene fatta? $h_0$ com'è?}
 Si può notare come questa sia la rivisitazione del tipico input randomico $z$ di una generica GAN.
-TODO
 
+L'obiettivo del generatore $ G_\theta $ è quello di produrre una sequenza a partire dallo stato $s_0$ che massimizzi il \emph{reward} totale, in formule:
+$$
+J(\theta) = \E[R_t | s_0, \theta ] =
+\sum_{y_1 \in \T}
+G_\theta ( y_1 | s_0) \cdot
+Q_{D_\phi}^{G_\theta} ( s_0, y_1)
+$$
+in cui $Q_{D_\phi}^{G_\theta} ( s, a)$ è la funzione che indica il \emph{reward} accumulabile eseguendo l'azione $a$ allo stato $s$ e seguendo la \emph{policy} $G_\theta$ nei passi successivi.
+Questa funzione dovrà necessariamente essere stimata, perché sappiamo che $D_\phi$ non può essere sfruttato su sequenze incomplete.
+Quindi si utilizza una \emph{$N$-Monte Carlo Search} per stimare $N$ volte i $T-t$ token mancanti
+$$
+\{ 
+  Y_{1:T}^1,
+  \dots,
+  Y_{1:T}^N
+\}
+=
+MC (Y_{1:t}; N)
+$$
+Gli $ Y_{t+1:T}^n $ con cui si completa la sequenza di partenza sono campionati usando la stessa \emph{policy} $G_\theta$.
+Quindi la stima del \emph{reward} atteso è data da
+%$$
+%Q_{D_\phi}^{G_\theta} ( s_0, y_1) TODO
+%=
+%\left\{
+%\begin{array}{lr}
+%  x(n), & \text{for } 0\leq n\leq 1\\
+%\end{array}
+%\right\
+%$$
 
+$$
+Q_{D_\phi}^{G_\theta}
+( s = Y_{1:t-1} ,
+a = y_t)
+=
+\left\{\begin{array}{lr}
+    \dfrac{1}{N} \sum_{n=1}^N D_\phi (Y_{1:T}^n) ,\; Y_{1:T}^n \in MC(Y_{1:t};N)
+      & \textrm{for } t < T \\
 
+    D_\phi (Y_{1:t}) & \textrm{for } t = T
 
+\end{array}\right.
+$$
+%Abbiamo visto come $J(\theta)$ può essere calcolata e sappiamo che 
 
-
-
+Per quanto riguarda il discriminatore $D_\phi$ viene specificato che l'aggiornamento dei suoi parametri $\phi$ viene effettuato solo quando il generatore ha creato un numero sufficiente di sequenze.
+In questo modo è possibile avere un discriminatore che si adatta e migliora assieme al generatore, pur lasciandogli il tempo di perfezionarsi.
+In formule $D_\phi$ viene allenato secondo:
+$$
+min_\phi
+- \E_{Y \sim p_{real}} [ log D_\phi (Y) ]
+- \E_{Y \sim G_\theta} [ log ( 1 - D_\phi(Y))]
+$$
+\todo{se tempo si può riportare schema algoritmo (appendice?)}
+\todo[inline]{TODO spiegare cos'è il pre-train e come viene fatto}
 
 
