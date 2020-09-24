@@ -4,13 +4,13 @@
 
 
 \section{RL}
-Il \emph{Reinforcement Learning} (RL) assieme al \emph{Supervised Learning} ed al \emph{Unsupervised Learning} è il terzo paradigma di apprendimento autonomo.
+Il \emph{Reinforcement Learning} (RL), assieme al \emph{Supervised Learning} ed all'\emph{Unsupervised Learning}, è il terzo paradigma di apprendimento autonomo.
 Gli ultimi due paradigmi sfruttano un dataset, rispettivamente con e senza label, per portare a termine un specifico task oppure generare nuova informazione.
-Nel caso del RL il dataset viene sostituito con un ambiente (\emph{environment}) nel quale il modello può eseguire delle azioni e osservarne le conseguenze, quindi come l'ambiente viene modificato dall'azione.
+Nel caso del RL il dataset viene sostituito con un ambiente (\emph{environment}) nel quale il modello può eseguire delle azioni e osservarne le conseguenze, quindi come l'ambiente viene modificato dall'azione appena compiuta.
 In questo paradigma il modello viene anche chiamato ``agente'' e l'elenco, discreto oppure continuo, delle azioni eseguibili prende il nome di \emph{action space}.
-L'agente impara grazie ad un \emph{reward}, positivo o negativo, associato al risultato delle sue azioni.
-Il suo obbiettivo è quello di massimizzare la somma dei \emph{reward} sul lungo termine, quindi si vuole che scopra e adotti una strategia (\emph{policy}) efficace nell'ambiente considerato.
-Poiché è necessario svolgere numerose iterazioni del tipo \emph{trail-and-error} e considerato che solitamente un fallimento corrisponde anche ad una grande acquisizione di informazione, bisogna creare degli \emph{environment} virtuali che siano il più vicino possibile al dominio di applicazione finale e che permettano un'esecuzione rapida e senza costi aggiuntivi.
+L'agente impara grazie ad una ricompensa (\emph{reward}), positiva o negativa, associata al risultato delle sue azioni.
+Il suo obiettivo è quello di massimizzare la somma dei \emph{reward} sul lungo termine, quindi si vuole che scopra e adotti una strategia (\emph{policy}) efficace nell'ambiente considerato.
+Poiché è necessario svolgere numerose iterazioni del tipo \emph{trial-and-error} e considerato che solitamente un fallimento corrisponde anche ad una grande acquisizione di informazione, bisogna creare degli \emph{environment} virtuali che siano il più vicino possibile al dominio di applicazione finale e che permettano un'esecuzione rapida e senza costi aggiuntivi.
 %
 %\todo{ampliare intro?} % TODO
 %\todo{esempi con ref?} % TODO
@@ -22,23 +22,33 @@ $$
 in cui 
 $s_t$ è lo stato corrente cioè come l'ambiente si presenta all'agente,
 $a_t$ è l'azione che l'agente svolge all'istante $t$,
-mentre a destra dell'uguale si ha il valore atteso del \emph{reward} totale $R_t$ che l'agente potrà ricevere in futuro, quindi negli $s_{t+i}$ con $i=1,2,\dots$, se esegue $a_t$ in $s_t$.
+mentre a destra dell'uguale si ha il valore atteso del \emph{reward} totale $R_t$ che l'agente potrà ricevere in futuro, quindi negli $s_{t+i}$ con $i=1,2,\dots$ se esegue $a_t$ in $s_t$.
 Calcolare $R_t$ risulta critico perché la sua naturale definizione è
 $$
 R_t = \sum_{i=t}^{\inf} \gamma^i r_i = 
+\gamma^{t+1} r_{t+1} + 
+\gamma^{t+2} r_{t+2} + 
+\gamma^{t+3} r_{t+3} + \dots
+\gamma^{t+n} r_{t+n} + \dots
 $$
-in cui $0 < \gamma < 1$  viene chiamato \emph{discount factor} ed indica la \emph{greediness} del modello. \todo{spiegare meglio in caso}
-In questa casistica risulta utile approssimare $Q(s,a)$ con una rete neurale, in questo modo si evita di dover fissare a mano un \emph{hyperparameter} come ad esempio il numero di somme da effettuare per approssimare $R_t$.
+in cui $0 < \gamma < 1$  viene chiamato \emph{discount factor} ed indica la \emph{greediness} del modello. %\todo{spiegare meglio in caso}
+In questa casistica risulta utile approssimare $Q(s,a)$ con una rete neurale, in questo modo si evita di dover fissare a mano un \emph{hyperparameter} come, ad esempio,  il numero di somme da effettuare per approssimare $R_t$.
 L'idea è fornire alla rete, detta anche \emph{Q-Network} \cite{DQN}, lo stato corrente ed ogni possibile azione lecita e successivamente scegliere l'azione a cui la rete assegna il valore più alto.
-Procedendo in questo per ogni stato che si incontra è possibile seguire una policy $\pi(s)$ ottimale ad ogni passo, quindi complessivamente si è trovata una strategia ottimale che porta al guadagno massimo sul lungo periodo.
+$$
+argmax_a Q(s_t, a) %\quad\textrm{con $Q(\cdot)$ approssimata da una rete}
+$$
+Procedendo in questo modo per ogni stato che si incontra $s_{t+i}$ con $i=1,2,\dots$ è possibile seguire una policy $\pi(s)$ ottimale ad ogni passo.
+La policy $\pi(s)$ è una politica di scelta che associa uno stato ad un'azione, con lo scopo di ottenere un buon guadagno sul lungo termine.
+Si trova una strategia ottimale quando ogni scelta fatta seguendo la $\pi$ è ottimale.
 
-\todo[inline]{qui mettere loss function e spiegarla}
+\todo[inline]{qui mettere loss function e spiegarla?}
 
-L'approccio appena presentato richiede che l' \emph{action space} sia discreto e di dimensione ridotta, altrimenti sarebbe impossibile o molto costoso iterare su tutte le azioni per selezionarne la migliore.
-Per ovviare a questo problema si possono utilizzare modelli che provano ad ottimizzare direttamente la \emph{policy} $\pi(s)$, questi modelli prendono il nome di \emph{Policy Learning} e vengono allenati tramite il \emph{Policy Gradient}. \todo{cite paper?}
+L'approccio appena presentato richiede che l'\emph{action space} sia discreto e di dimensione ridotta, altrimenti sarebbe impossibile o molto costoso iterare su tutte le azioni per selezionarne la migliore.
+Per ovviare a questo problema si possono utilizzare modelli che provano ad ottimizzare direttamente la \emph{policy} $\pi(s)$, questi modelli prendono il nome di \emph{Policy Learning} e vengono allenati tramite il \emph{Policy Gradient}. %\todo{cite paper?}
 In questo modo è possibile ottenere direttamente l'azione migliore a partire soltanto dallo stato.
 L'idea principale è approssimare $\pi$ con una distribuzione di probabilità, in questo modo risulta naturale utilizzare un \emph{action space} continuo, inoltre si può ottenere una strategia non deterministica, quindi più flessibile e con maggiori capacità esplorative durante il training.
-Dato uno stato $s$ l'azione $a$ verrà estratta secondo:
+Il non determinismo è introdotto quando, per scegliere l'azione da eseguire, se ne estrae una dalla distribuzione di probabilità data dalla \emph{policy}.
+In formule, dato uno stato $s$ l'azione $a$ verrà estratta secondo:
 %$$
 %a = 
 %\pi(s) \sim P(a|s) \quad\textrm{in cui } \sum_{a_i \in A} P(a_i | s) = 1 \quad\textrm{con $A$ \emph{action space}}
@@ -48,19 +58,21 @@ a =
 \pi(s) \sim P(a|s) \quad\textrm{in cui } \int_{a = - \inf}^{\inf} P(a | s) = 1
 $$
 Poiché $P(a|s)  = \mathcal{N}(\mu,\sigma ^2)$ si può fare in modo che la rete dia in output direttamente il vettore della medie $\mu$ e il vettore delle varianze $\sigma^2$.
-L'allenamento inizia con l'inizializzazione dell'agente e dell'ambiente, poi l'agente segue la sua policy corrente fino a terminazione, tutti gli stati, le azioni e i reward vengono registrati.
+L'allenamento incomincia con l'inizializzazione dell'agente e dell'ambiente, poi l'agente segue la sua policy corrente fino a terminazione mentre tutti gli stati, le azioni e i reward vengono registrati.
 Infine si aumenta la probabilità delle azioni che hanno portato a reward positivi e si decrementa la probabilità delle azioni con reward negativo, fatto ciò si effettua nuovamente l'inizializzazione in modo da valutare la policy aggiornata. 
-Notare che definire il concetto di "terminazione" non è sempre ovvio e può corrispondere, ad esempio, all'esecuzione di un numero limitato di azioni oppure al ricevimento di un grande reward negativo.
+Notare che definire il concetto di ``terminazione'' non è sempre ovvio e può corrispondere, ad esempio, all'esecuzione di un numero limitato di azioni oppure al ricevimento di un grande reward negativo.
 L'aggiornamento dei pesi della rete, quindi della policy, viene effettuato tramite \emph{gradient descent} usando la \emph{loss}
 $$
 loss = - log P(a_t | s_t ) R_t
 $$
-Il logaritmo indica la probabilità logaritmica con cui $a_t$ viene scelta allo stato $s_t$ mentre $R_t$ è il reward totale già incontrato precedentemente.
-Se $R_t$ è positivo allora converrà aumentare la probabilità di selezionare $a_t$, viceversa quando è negativo conviene diminuire la probabilità.
+Il logaritmo indica la probabilità logaritmica con cui $a_t$ viene scelta allo stato $s_t$ mentre $R_t$ è il valore atteso del reward totale che si guadagnerà.
+Se $R_t$ è positivo allora converrà aumentare la probabilità di selezionare $a_t$, viceversa se è negativo conviene diminuire la probabilità.
 Il \emph{Policy Gradient} è il gradiente relativo a questa particolare \emph{loss}.
 
 \todo[inline]{TODO più matematicoso con spiegazione calcolo $R_t$}
 \todo[inline]{TODO introdurre REINFORCE?}
 \todo[inline]{TODO differenza tra esplorare e exploit}
 \todo[inline]{TODO esempio Alpha GO, Alpha Zero e Hide and Seek}
+
+\clearpage
 
