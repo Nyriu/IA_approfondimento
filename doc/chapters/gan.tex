@@ -15,54 +15,66 @@ Il campionamento non è un'operazione differenziabile e questo rende inapplicabi
 Rappresentando $z$ come $z = \mu + \sigma \odot \varepsilon$ in cui $\varepsilon \sim \mathcal{N}(0,1)$, $\varepsilon$ campionata da una distribuzione normale, è possible effettuare l'operazione di \emph{sampling} all'esterno della rete.
 In questo modo $\mu$ e $\sigma$ possono essere utilizzati per il calcolo del gradiente e quindi usati durante la \emph{backpropagation}.
 Un VAE allenato, poiché ha un \emph{bottleneck} non deterministico, permette di generare immagini con \emph{feature} simili a quelle fornite durante il training, inoltre è possibile modificare direttamente i valori del vettore $z$ per osservare che tipo di informazione rappresentano una volta decompressi.
-
 Nonostante questo tipo di rete sia in grado di dare risultati interessanti e permetta di comprendere meglio il significato degli spazi latenti, è strettamente legata alla dimensions del \emph{bottleneck}.
-Quest'ultimo è un \emph{hyperparameter}, perché dipende dalla forma della rete, quindi deve essere cercato manualmente.
+Quest'ultimo è un \emph{hyperparameter} perché dipende dalla forma della rete, quindi deve essere cercato manualmente.
 
 %Dopo questa breve panoramica sulle VAE, ispirata alla lezione del MIT \cite{MIT_GEN}, ci si accorge che sono una soluzione astuta ma complessa e che le loro prestazioni sono vincolate strettamente allo spazio latente che si è trovato durante il training.
 
 %TODO nota sul Disentanglement delle variabili che permette di avere controllo sulle singole caratteristiche delle immagini generate
 
-Le prestazioni dei VAE sono state battute da quelle dell GAN.
-Le \emph{Generative Adversarial Network} (GAN) forniscono un architettura divisa in due parti 
-\todo[inline]{TODO}
+Le prestazioni dei VAE sono state superate da quelle dell GAN.
+Le \emph{Generative Adversarial Network} (GAN) sono composte da due modelli che, citando \cite{GANTF}, \emph{``vengono addestrati simultaneamente da un processo contraddittorio. Un generatore ("l'artista") impara a creare immagini che sembrano reali, mentre un discriminatore ("il critico d'arte") impara a distinguere le immagini reali dai falsi''}.
+Riformulando la frase si può dire che una GAN, come si vede in \autoref{fig:gan}, è composta da due reti: la prima viene chiamata Generatore $G$ ed il suo scopo è fornire in output un $x_{fake}$ che sembri appartenere alla distribuzione del \emph{dataset} di dati reali fornito; la seconda, detta Discriminatore $D$, prende in input un $x_{fake}$ oppure un $x_{real}$ estratto dal \emph{dataset} e deve riuscire determinare se è reale oppure sintetico.
+Notare che le GAN non sono strettamente limitate ad immagini, infatti lo scopo dell'architettura è quello di produrre una buona approssimazione della distribuzione di probabilità del dataset attraverso una metrica dinamica determinata da D.
+L'idea di partenza è molto semplice però la convergenza del modello non è scontata e sono noti svariati problemi, alcuni dei quali illustrati in \cite{HARD_GAN}.
 
-Nelle GAN sono presenti due modelli che, citando \cite{GANTF}, \emph{``vengono addestrati simultaneamente da un processo contraddittorio. Un generatore ("l'artista") impara a creare immagini che sembrano reali, mentre un discriminatore ("il critico d'arte") impara a distinguere le immagini reali dai falsi''}.
-Riformulando la frase si può dire che una GAN, come si vede in \autoref{fig:gan}, è composta da due reti: la prima viene chiamata Generatore $G$ ed il suo scopo è fornire in output un $x_{fake}$ che sembri appartenere alla distribuzione del \emph{dataset} reale fornito; la seconda, detta Discriminatore $D$, prende in input un $x_{fake}$ ed un $x_{real}$ estratto dal \emph{dataset} e deve riuscire a distinguere il dato reale da quello sintetico.
-Quindi il training viene svolto in quattro momenti:
-\begin{itemize}
-  \item all'inizio $G$ a partire da del rumore randomizzo genera, basandosi sulle sue conoscenze attuali, un $x_{fake}$;
-  \item successivamente $D$ stabilisce quale tra $x_fake$ ed un $x_real$ fornito è sintetico;
-  \item la prestazione di $D$ viene valutata con il \emph{ground truth} e con questa può essere effettuata la \emph{backpropagation} su $D$;
-  \item con l'output del discriminatore è possibile determinare anche la prestazione di $G$, infatti se questo è riuscito a confondere $D$ significa che sta raggiungendo una buona conoscenza del dominio.
-\end{itemize}
-Notare come $G$ sia in grado di mappare del rumore casuale nello spazio delle \emph{feature} del dominio e che quindi, una volta allenato, possa essere sfruttato molto facilmente: basterà avere del rumore da cui partire.
-Si può quindi dire che $G$ opera come il decoder di un AE con un particolare spazio latente molto semplice.
 \begin{figure}[ht]
   \centering
   \includegraphics[width=.7\textwidth]{GAN/arch.png}
   \caption{Architettura di una generica GAN (dalle slide in \cite{MIT_GEN})}
   \label{fig:gan}
 \end{figure}
+\noindent
+Il training viene svolto in quattro momenti:
+\begin{itemize}
+  \item a partire da del rumore casuale $z$, il generatore $G$, basandosi sulle sue conoscenze attuali, produce un $x_{fake}$;
+  \item successivamente $D$ riceve un $x_{fake}$ ed un $x_{real}$ e deve categorizzali correttamente;
+  \item il \emph{ground truth} è noto, quindi è possibile effettuare la \emph{backpropagation} su $D$;
+  \item similmente $G$ viene aggiornato a partire dalla probabilità $D(x_{fake})$ cioè quanto il discriminatore è convinto che $x_{fake}$ sia reale.
+    Se questo valore è alto significa che il generatore sta imparando correttamente.
+\end{itemize}
+Notare come $G$ sia in grado di mappare del rumore casuale nello spazio delle \emph{feature} del dominio e che quindi, una volta allenato, possa essere sfruttato molto facilmente: basterà avere del rumore da cui partire.
+In questo senso c'è una certa somiglianza con quanto succede nella seconda parte dei VAE: $G$ opera come un decoder in cui lo spazio latente è molto semplice.
+
+Ci si accorge che $G$ e $D$ hanno obiettivi opposti: il primo vuole confondere il secondo, mentre questo vuole evitare di venire confuso.
+Questo gioco di minmax può essere riassunto in  formule con:
+$$
+min_G \, max_D \: V(D,G) = \E_{x \sim P_{real(x)}} [ log D(x) ] 
++
+\E_{z \sim P_z(x)} [ log ( 1 - D(G(z)) ]
+$$
+$D$ vuole massimizzare il valore atteso della probabilità (in questo caso logaritmica) che un $x$ estratto dal dataset sia effettivamente riconosciuto come reale ed allo stesso tempo vuole massimizzare anche $ 1 - D(x)$ quando $x=G(z)$ è sintetico.
+Quindi nel caso del dato reale $D(x)$ dovrà avvicinarsi ad 1, mentre nell'altro caso si vorrà $D(G(z)) \simeq 0$.
+Al contempo $G$ vuole minimizzare la formula e, dato che può operare solo sul secondo addendo, tenderà ad indurre $D(G(z)) \simeq 1$.
+
 Rispetto ai $VAE$ le $GAN$ risultano non solo più intuitive ma permettono anche di raggiungere prestazioni veramente sorprendenti, come si può vedere in \cite{GAN_HD}, in cui anche gli esperti umani vengono ingannati dai prodotti della rete.
 
-Va fatto notare però che le GAN sono notoriamente difficili da allenare %\cite{HARD_GAN}
-\todo{leggere xke GAN difficili}
-, basti pensare che prima dell'allenamento entrambe le sotto-reti non hanno alcuna conoscenza del dominio e si chiede loro di guidarsi a vicenda.
-Se il discriminatore converge rapidamente è possibile che dia una valutazione così bassa al generatore da causare il \emph{vanishing gradient problem}, rendendo quindi impossibile che $G$ possa migliorarsi.
-Un altro problema noto è quello del \emph{model collapse} che si verifica quando $G$ riproduce molto bene soltanto una piccola frazione del dominio.
-In questo modo riesce ad ottenere punteggi molto alti ma a discapito della generalità.
+Va fatto notare però che le GAN sono notoriamente difficili da allenare, come riportato in \cite{HARD_GAN}.
+Già ad un livello intuitivo si può capire che partendo da reti senza conoscenze pregresse è molto difficile raggiungere buone prestazioni: entrambe le sotto-reti non hanno alcuna conoscenza del dominio e si chiede loro di guidarsi a vicenda.
+Quindi in molte applicazioni, ove possibile, conviene effettuare un \emph{pre-train} dei singoli $G$ e $D$ ed collegarli successivamente per formare l'architettura GAN.
+Questo accorgimento comunque non evita un altro problema ben noto: quando il discriminatore converge rapidamente è possibile che dia una valutazione così bassa al generatore da rendere impossibile che $G$ possa migliorarsi.
+Quando $D(G(z))$ è pressoché zero si rischia il problema del \emph{vanishing gradient}, quindi i pesi di $G$ vengono aggiranti di un valore troppo piccolo bloccando l'esplorazione dello spazio di ricerca.
+
+Un altro problema difficile da evitare è quello del \emph{model collapse} che si verifica quando $G$ riproduce molto bene soltanto una piccola frazione del dominio.
+In questo modo riesce ad ottenere punteggi molto alti a discapito della generalità.
+A seconda del dominio di applicazione il \emph{model collapse} può essere un problema più o meno grave e richiedere accorgimenti specifici.
+
+% alcuni modi per risolvere model collapse?
 
 
 % L'efficacia di questa tecnica e' lampante quando si parla di immagini...
 %In questo caso si fa riferimento alla possibilità di utilizzare le GAN come generatori di immagini sintetiche indistinguibili da quelle reali, in \cite{GAN_HD} si può osservare il livello di dettaglio impressionante che queste reti sono in grado di produrre.
 
 
-\todo[inline]{aggiungere robe dal paper originale se si deve allungare}
+%\todo[inline]{aggiungere robe dal paper originale se si deve allungare}
 
-$$
-min_G max_D V(D,G) = \E_{x \sim P_real(x)} [ log D(x) ] 
-+
-\E_{z \sim P_z(x)} [ log ( 1 - D(G(x)) ]
-$$ 
-\todo{inserire formula per chiarire training e obj}
