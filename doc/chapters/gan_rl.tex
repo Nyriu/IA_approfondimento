@@ -148,20 +148,23 @@ Queste reti vengono presentate in \cite{LeakGAN} e si differenziano dalle preced
     Le \emph{feature} che il primo estrae e su cui poi baserà la valutazione vengono fornite al secondo in modo da ricevere un'informazione molto più ricca di un semplice punteggio; 
   \item si introduce anche un nuovo modulo all'interno del generatore in modo da elaborare l'informazione che giunge da $D$ ed utilizzarla per poi decidere il token successivo.
 \end{itemize}
-
-\todo[inline]{inserire immagine rete TODO}
-
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.7\textwidth]{leakgan.png}
+  \caption{Architettura di una LeakGAN \cite{LeakGAN}}
+  \label{fig:leakgan}
+\end{figure}
 Va subito fatto notare come la seconda modifica renda il generatore un generatore gerarchico, quindi composto da sottomoduli con specifici compiti.
-È altrettanto importante sottolineare che i sotto-compiti che il Manager richiede al Worker sono auto-determinati, infatti il Manger è in grado di richiedere punteggiature e particolari strutture.
+È altrettanto importante sottolineare che i sotto-compiti che il Manager richiede al Worker sono auto-determinati, infatti i risultati ottenuti dimostrano che il Manger è in grado di richiedere al Worker la generazione di punteggiature e particolari strutture.
 
 La \emph{Linear Projection} presente nello schema effettua una trasformazione lineare $\psi$, con pesi $W_\psi$, su un numero $c$ di goal $g_t$ recenti, così da generare un vettore $w_t$ di dimensione adeguata per l'esecuzione del prodotto con $O_t$.
-I formule si ha
+In formule si ha
 \begin{align}
   w_t &= \psi \left( \sum_{i=1}^{c} g_{t-1} \right)
   \\
   O_t, h_t &= Worker(x_t, h_{t-1}; \theta)
   \\
-  G_\theta(\cdot|s_t) &= softmax ( O_t \cdot w_t / \alpha)
+  x_{t+1} = G_\theta(\cdot|s_t) &= softmax ( O_t \cdot w_t / \alpha)
 \end{align}
 in cui $h_t$ è \emph{hidden state} del Worker, mentre $\alpha$ viene usato per bilanciare esplorazione e sfruttamento (\emph{exploration and exploitation}).
 In generale avrà un valore alto durante il \emph{training} per favorire l'esplorazione, avrà invece un valore basso durante la generazione di quelle sequenze che poi verranno usate per allenare $D$.
@@ -172,6 +175,32 @@ In generale avrà un valore alto durante il \emph{training} per favorire l'esplo
 Un'altra importante modifica riguarda l'\emph{interleaved training}: si alternano allenamento tramite GAN ed allenamento tramite metodo supervisionato (MLE), anziché effettuare soltanto GAN dopo il \emph{pre-train}.
 Questo evita il \emph{mode collapse} obbligando $G$ a rimanenre aderente alla vera dispribuzione degli esempi reali 
 
-TODO qua
 
+\begin{algorithm}
+  \caption{Adversarial Training with Leaked Information}
+  \label{alg:LeakGAN}
+  \begin{algorithmic}[1]
+    \State Initialize $G_{\theta_m, \theta_w}$, $D_\phi$ with random weights $\theta_m$,$\theta_w$, $\phi$
+    \State Pre-train $D_\phi$ on real data and generated data
+    \State Pre-train $G_{\theta_m, \theta_w}$ using leaked information from $D_\phi$
+    \State Perform the two parts of pre-training interleavingly until converger
+    \Repeat
+      \For{g-steps}
+        \State Generate a sequence $Y_{1:T} = (y_1, \dots, y_T) \sim G_{\theta_m, \theta_w}$
+        \For{$t$ in $1:T$}
+          \State Store leaked information from $D_\phi$
+          \State Get $Q(f_t, g_t)$ by Monte Carlo Search
+          \State Get the computed direction $g_t$ from MANAGER
+          \State Update WORKER parameters $\theta_w$, $\varphi$, softmax
+          \State Update MANAGER parameters $\theta_m$
+        \EndFor
+      \EndFor
+      \For{d-steps}
+        \State Use current $G_{\theta_m, \theta_w}$ to generate negative examples
+        \State Train $D_\phi$ for $k$ epochs on generated examples and real data
+      \EndFor
+    \Until \State LeakGAN converges
+  \end{algorithmic}
+\end{algorithm}
 
+TODO speigare che c'e' alternanza tra GAN e pre-train per evitare model collapse
