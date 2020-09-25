@@ -13,7 +13,7 @@ Nell'articolo si trova anche un confronto tra MaliGAN, RankGAN, MaskGAN e TextGA
 \subsection{SeqGAN}
 Come riportato nell'introduzione dell'articolo \cite{SeqGAN}, per generare frasi che siano verosimili è necessario allenare un discriminatore che valuti frasi intere e che assegni a queste un punteggio.
 Purtroppo ciò rende molto difficile allenare il generatore, perché non è possible determinare se un punteggio basso corrisponde all'intera struttura della frase oppure soltanto ad una o poche parole.
-La problematica è ancora più evidente nel caso in cui il generatore è una RNN \todo{mai introdotte per ora, TODO da fare sopra}
+La problematica è ancora più evidente nel caso in cui il generatore è una RNN \todo{mai introdotte per ora, TODO da fare mini sezione sopra?}
 rendendo difficile, ad esempio aggiornare efficacemente il modo con cui vengono create le parti iniziali di frasi.
 
 Le SeqGAN affrontano il problema in un modo molto interessante: se si considera il punteggio che $D$ fornisce alle frasi come \emph{reward} per $G$ e se questo utilizza come stato la frase generata fino ad ora e come azione la scelta della parola successiva, allora è possibile sfruttare il \emph{Policy Gradient} sul generatore.
@@ -96,7 +96,7 @@ min_\phi
 - \E_{Y \sim p_{real}} [ log D_\phi (Y) ]
 - \E_{Y \sim G_\theta} [ log ( 1 - D_\phi(Y))]
 $$
-%L'algoritmo del train illustrato in \cite{SeqGAN} è riportato in \ref{alg:SeqGAN}.
+L'algoritmo del train illustrato in \cite{SeqGAN} è riportato in {Algorithm \ref{alg:SeqGAN}}.
 \begin{algorithm}
   \caption{Sequence Generative Adversarial Nets}
   \label{alg:SeqGAN}
@@ -117,7 +117,7 @@ $$
         \State Use current $G_\theta$ to generate negative examples and combine with given positive examples
         \State Train $D_\phi$ for $k$ epochs
       \EndFor 
-    \Until \State SeqGAN converges
+    \Until{SeqGAN converges}
   \end{algorithmic}
 \end{algorithm}
 %\todo[inline]{dare idea MLE}
@@ -135,7 +135,7 @@ In \cite{SeqGAN} vengono utilizzate anche tecniche come \emph{Dropout} e \emph{L
 La prima è una tecnica molto conosciuta che permette di evitare che la rete impari ``a memoria'' la distribuzione target.
 Con il \emph{Dropout} si va ad azzerare casualmente una percentuale dei pesi della rete, in questo modo la si obbliga ad astrarre maggiormente l'informazione.
 Inoltre questo rafforza la resistenza e l'efficienza della rete perché sarà in grado di portare a termine il compito anche in mancanza di nodi interni.
-Con la \emph{L2 regularization} si effettua una scolatura dell'errore così da evitare il \emph{gradient vanishing}. \todo{magari mettere formula ed allungare spiegazione}
+Con la \emph{L2 regularization} si effettua una scolatura dell'errore così da evitare il \emph{gradient vanishing}. %\todo{magari mettere formula ed allungare spiegazione}
 In \cite{SeqGAN} è anche possibile trovare una valutazione dettagliata delle prestazioni delle SeqGAN rispetto ad altri modelli e su tre casi$ $d'uso differenti.
 
 
@@ -158,6 +158,8 @@ Va subito fatto notare come la seconda modifica renda il generatore un generator
 È altrettanto importante sottolineare che i sotto-compiti che il Manager richiede al Worker sono auto-determinati, infatti i risultati ottenuti dimostrano che il Manger è in grado di richiedere al Worker la generazione di punteggiature e particolari strutture.
 
 La \emph{Linear Projection} presente nello schema effettua una trasformazione lineare $\psi$, con pesi $W_\psi$, su un numero $c$ di goal $g_t$ recenti, così da generare un vettore $w_t$ di dimensione adeguata per l'esecuzione del prodotto con $O_t$.
+
+\noindent
 In formule si ha
 \begin{align}
   w_t &= \psi \left( \sum_{i=1}^{c} g_{t-1} \right)
@@ -169,13 +171,13 @@ In formule si ha
 in cui $h_t$ è \emph{hidden state} del Worker, mentre $\alpha$ viene usato per bilanciare esplorazione e sfruttamento (\emph{exploration and exploitation}).
 In generale avrà un valore alto durante il \emph{training} per favorire l'esplorazione, avrà invece un valore basso durante la generazione di quelle sequenze che poi verranno usate per allenare $D$.
 
-\todo{sezione su train G? Rescaled $R_t$?}
+\todo{spiegare meglio train G? Rescaled $R_t$?}
 
 
 Un'altra importante modifica riguarda l'\emph{interleaved training}: si alternano allenamento tramite GAN ed allenamento tramite metodo supervisionato (MLE), anziché effettuare soltanto GAN dopo il \emph{pre-train}.
-Questo evita il \emph{mode collapse} obbligando $G$ a rimanenre aderente alla vera dispribuzione degli esempi reali 
-
-
+Questo evita il \emph{mode collapse} obbligando $G$ a rimanere aderente alla vera distribuzione degli esempi reali, evitando quindi che si specializzi su casi particolari con cui confondere $D$.
+La modifica viene mostrata in modo esplicito a riga 4 del pseudocodice \textbf{Algorithm \ref{alg:LeakGAN}}.
+Notare come vengano mostrati esplicitamente i parametri del Worker e del Manager, specificando che vengono aggiornati indipendentemente.
 \begin{algorithm}
   \caption{Adversarial Training with Leaked Information}
   \label{alg:LeakGAN}
@@ -183,7 +185,7 @@ Questo evita il \emph{mode collapse} obbligando $G$ a rimanenre aderente alla ve
     \State Initialize $G_{\theta_m, \theta_w}$, $D_\phi$ with random weights $\theta_m$,$\theta_w$, $\phi$
     \State Pre-train $D_\phi$ on real data and generated data
     \State Pre-train $G_{\theta_m, \theta_w}$ using leaked information from $D_\phi$
-    \State Perform the two parts of pre-training interleavingly until converger
+    \State Perform the two parts of pre-training interleavingly until convergence
     \Repeat
       \For{g-steps}
         \State Generate a sequence $Y_{1:T} = (y_1, \dots, y_T) \sim G_{\theta_m, \theta_w}$
@@ -191,7 +193,7 @@ Questo evita il \emph{mode collapse} obbligando $G$ a rimanenre aderente alla ve
           \State Store leaked information from $D_\phi$
           \State Get $Q(f_t, g_t)$ by Monte Carlo Search
           \State Get the computed direction $g_t$ from MANAGER
-          \State Update WORKER parameters $\theta_w$, $\varphi$, softmax
+          \State Update WORKER parameters $\theta_w$, $\psi$, softmax
           \State Update MANAGER parameters $\theta_m$
         \EndFor
       \EndFor
@@ -199,8 +201,32 @@ Questo evita il \emph{mode collapse} obbligando $G$ a rimanenre aderente alla ve
         \State Use current $G_{\theta_m, \theta_w}$ to generate negative examples
         \State Train $D_\phi$ for $k$ epochs on generated examples and real data
       \EndFor
-    \Until \State LeakGAN converges
+    \Until{LeakGAN converges}
   \end{algorithmic}
 \end{algorithm}
 
-TODO speigare che c'e' alternanza tra GAN e pre-train per evitare model collapse
+I risultati riportati in \cite{LeakGAN} mostrano come le LeakGAN siano in grado di superare le già buone prestazioni delle SeqGAN su sequenze di 20 token e come le superino notevolmente con sequenze lunghe 40 token.
+Interessante anche il grafico ottenuto tramite PCA che permette di ottenere una visualizzazione della capacità delle LeakGAN di raggiungere lo spazio delle feature dei dati reali.
+
+
+In \autoref{tab:esempi} vengono esposti quattro esempi generati da LeakGAN e SeqGAN allenate con le didascalie del dataset COCO.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|} 
+\hline
+LeakGAN  \\
+\hline
+(1) A man sitting in front of a microphone with his dog sitting oh his shoulder. \\
+(2) A young man is holding a bottle of wine in his hand.  \\
+\hline
+SeqGAN \\
+\hline
+(1) A couple of kids in a bathroom that is in a bathroom. \\
+(2) A bathroom with tiled walls ad shower on it. \\
+\hline
+\end{tabular}
+\caption{Esempi generati da modelli alleanti con \emph{COCO Image Captions}}
+\label{tab:esempi}
+\end{table}
+

@@ -41,7 +41,7 @@ Procedendo in questo modo per ogni stato che si incontra $s_{t+i}$ con $i=1,2,\d
 La policy $\pi(s)$ è una politica di scelta che associa uno stato ad un'azione, con lo scopo di ottenere un buon guadagno sul lungo termine.
 Si trova una strategia ottimale quando ogni scelta fatta seguendo la $\pi$ è ottimale.
 
-\todo[inline]{qui mettere loss function e spiegarla?}
+%\todo[inline]{qui mettere loss function e spiegarla?}
 
 L'approccio appena presentato richiede che l'\emph{action space} sia discreto e di dimensione ridotta, altrimenti sarebbe impossibile o molto costoso iterare su tutte le azioni per selezionarne la migliore.
 Per ovviare a questo problema si possono utilizzare modelli che provano ad ottimizzare direttamente la \emph{policy} $\pi(s)$, questi modelli prendono il nome di \emph{Policy Learning} e vengono allenati tramite il \emph{Policy Gradient}. %\todo{cite paper?}

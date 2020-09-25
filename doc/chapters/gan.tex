@@ -68,6 +68,8 @@ Quando $D(G(z))$ è pressoché zero si rischia il problema del \emph{vanishing g
 Un altro problema difficile da evitare è quello del \emph{model collapse} che si verifica quando $G$ riproduce molto bene soltanto una piccola frazione del dominio.
 In questo modo riesce ad ottenere punteggi molto alti a discapito della generalità.
 A seconda del dominio di applicazione il \emph{model collapse} può essere un problema più o meno grave e richiedere accorgimenti specifici.
+Un caso particolare che preclude la convergenza della GAN si ha quando $G$ si specializza per confondere $D$ in un modo specifico, poi $D$ si aggiorna per difendersi contro quel modo specifico, a quel punto $G$ si specializza su un ulteriore modo specifico.
+Se i modelli continuano questo ``inseguimento'' non convergeranno mai ad una soluzione utile.
 
 % alcuni modi per risolvere model collapse?
 
