@@ -68,11 +68,43 @@ $$
 Il logaritmo indica la probabilità logaritmica con cui $a_t$ viene scelta allo stato $s_t$ mentre $R_t$ è il valore atteso del reward totale che si guadagnerà.
 Se $R_t$ è positivo allora converrà aumentare la probabilità di selezionare $a_t$, viceversa se è negativo conviene diminuire la probabilità.
 Il \emph{Policy Gradient} è il gradiente relativo a questa particolare \emph{loss}.
+Rimane comunque critico il calcolo di $R_t$.
+Usando i \emph{Monte Carlo Rollouts} è possibile approssimare questo valore.
+In particolare, a partire dallo stato corrente, vengono generate (``srotolate'' da \emph{rollout}) svariate strategie seguendo la \emph{policy} corrente.
+Così facendo si può stimare un range di valori raggiungibili ed effettuare una media di questi valori.
+L'algoritmo appena descritto prende il nome di REINFORCE ed è può essere diviso in quattro passaggi:
+\begin{enumerate}
+  \item dallo stato corrente $s_t$ si esegue varie volte $\phi{s_t}$ fino a terminazione;
+  \item si effettua la media dei \emph{reward} ottenuti da ogni esecuzione;
+  \item si usa il valore ottenuto per aggiornarne la rete;
+  \item si estrae un azione $a_t$ dalla distribuzione $\phi{s_t}$ e si ripete dal punto 1.
+\end{enumerate}
+Nell'ambito del \emph{Reinforcement Learning} spesso i termini \emph{explore} ed \emph{exploit} vengono usati per indicare due momenti diversi del train della rete.
+Una rete viene usata in modalità \emph{explore} quando si vuole che sperimenti strategie nuove.
+In questa modalità si cerca di trovare soluzioni alternative, sperando che siano migliori di quella corrente.
+La modalità \emph{exploit}, invece, viene usata quando si vuole sfruttare le conoscenze apprese e portare a termine il compito secondo quella che è ritenuta la strategia migliore.
+%La transizione da una modalità all'altra è controllata da un valore detto ``di temperatura'' $\alpha$ 
 
-\todo[inline]{TODO più matematicoso con spiegazione calcolo $R_t$}
-\todo[inline]{TODO introdurre REINFORCE?}
-\todo[inline]{TODO differenza tra esplorare e exploit}
-\todo[inline]{TODO esempio Alpha GO, Alpha Zero e Hide and Seek}
+Quasi obbligatorio citare i risultati ottenuti da AlphaGO \cite{AlphaGO} ed AlphaZero \cite{AlphaZero} attraverso il RL.
 
-\clearpage
+\todo[inline]{dire quattro parole?}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\clearpage
+%\todo[inline]{TODO più matematicoso con spiegazione calcolo $R_t$}
+%\todo[inline]{TODO differenza tra esplorare e exploit}
+%\todo[inline]{TODO esempio Alpha GO, Alpha Zero e Hide and Seek}
 
