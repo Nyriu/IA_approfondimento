@@ -96,10 +96,10 @@ min_\phi
 - \E_{Y \sim p_{real}} [ log D_\phi (Y) ]
 - \E_{Y \sim G_\theta} [ log ( 1 - D_\phi(Y))]
 $$
-L'algoritmo del train illustrato in \cite{SeqGAN} è riportato in \autoref{alg:SeqGAN}.
+%L'algoritmo del train illustrato in \cite{SeqGAN} è riportato in \ref{alg:SeqGAN}.
 \begin{algorithm}
   \caption{Sequence Generative Adversarial Nets}
-    \label{alg:SeqGAN}}
+  \label{alg:SeqGAN}
   \begin{algorithmic}[1]
     \State Initialize $G_\theta$, $D_\phi$ with random weights $\theta$, $\phi$
     \State Pre-train $G_\theta$ using MLE on real data
@@ -108,9 +108,9 @@ L'algoritmo del train illustrato in \cite{SeqGAN} è riportato in \autoref{alg:S
     \Repeat
       \For{g-steps}
         \State Generate a sequence $Y_{1:T} = (y_1, \dots , y_T) \sim G_\theta$
-        \For{$t$ in $1:T$}
-          \State Compute $Q_{D_\phi}^{G_\theta}(s=Y_{1:T}; a=y_t)$
-        \EndFor 
+          \For{$t$ in $1:T$}
+            \State Compute $Q_{D_\phi}^{G_\theta}(s=Y_{1:T}; a=y_t)$
+          \EndFor 
         \State Update generator parameters via policy gradient
       \EndFor 
       \For{d-steps}
