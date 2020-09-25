@@ -40,7 +40,8 @@ TODO get Deep RL paper
 
 https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
 
-TODO get Deep Policy Learning paper
+Deep Policy Learning paper
+https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf
 
 
 ### GAN+RL
