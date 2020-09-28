@@ -7,13 +7,13 @@
 In questa sezione vengono illustrati due modelli capaci di generare testi sintetici sfruttando un'architettura GAN in cui $G$ viene allenato attraverso \emph{Reinforcement Learning}.
 Il primo modello, chiamato SeqGAN, è stato presentato in \cite{SeqGAN} ed illustrato anche in \cite{GAN_for_text}; il secondo è evoluzione del primo, permette di generare testi più lunghi, prende il nome di LeakGAN ed è descritto in \cite{LeakGAN}.
 Si vuole anche citare \cite{NetTextGen_Review} in cui vengono illustrati alcuni modelli usati prima delle SeqGAN e quelli sviluppati successivamente fino ad arrivare alle LeakGAN.
-Nell'articolo si trova anche un confronto tra MaliGAN, RankGAN, MaskGAN e TextGAN.
+Nell'articolo si trova anche un confronto tra MaliGAN, RankGAN, MaskGAN e TextGAN, non trattate in questo documento.
 %\todo[inline]{Sono particolarmente interessanti perché con SeqGAN si risolve} % TODO se serve
 
 \subsection{SeqGAN}
 Come riportato nell'introduzione dell'articolo \cite{SeqGAN}, per generare frasi che siano verosimili è necessario allenare un discriminatore che valuti frasi intere e che assegni a queste un punteggio.
 Purtroppo ciò rende molto difficile allenare il generatore, perché non è possible determinare se un punteggio basso corrisponde all'intera struttura della frase oppure soltanto ad una o poche parole.
-La problematica è ancora più evidente nel caso in cui il generatore è una RNN \todo{mai introdotte per ora, TODO da fare mini sezione sopra?}
+La problematica è ancora più evidente nel caso in cui il generatore è una RNN% \todo{mai introdotte per ora, TODO da fare mini sezione sopra?}
 rendendo difficile, ad esempio aggiornare efficacemente il modo con cui vengono create le parti iniziali di frasi.
 
 Le SeqGAN affrontano il problema in un modo molto interessante: se si considera il punteggio che $D$ fornisce alle frasi come \emph{reward} per $G$ e se questo utilizza come stato la frase generata fino ad ora e come azione la scelta della parola successiva, allora è possibile sfruttare il \emph{Policy Gradient} sul generatore.
@@ -21,7 +21,7 @@ Di fondamentale importanza la \emph{Monte Carlo Search} con \emph{Rollout} che v
 durante la generazione di una frase, $G$ non può ricevere una valutazione da $D$ perché il discriminatore è in grado di valutare soltanto frasi intere % TODO fare osservazione? % (una frase incompleta sarà sempre poco verosimile 
 quindi vengono generate $N$ frasi con prefisso la frase generata fino ad ora.
 Si sfrutta poi $D$ per valutare tutte le $N$ frasi e si effettua una media dei \emph{reward} ottenuti, così si ottiene il valore atteso della bontà della frase che si sta generando.
-Ci si riferisce a questo furbo accorgimento come \emph{Monte Carlo state-action search}.
+Ci si riferisce a questo furbo accorgimento come \emph{N-Monte Carlo Search} con \emph{Rollout}.
 
 Riprendendo i formalismi usati nell'articolo si ha:
 \begin{itemize}
@@ -41,7 +41,7 @@ Si può quindi dire che assomigli ai modelli RNN usati come decoder durante la t
 %Si fa presente che lo stato di partenza è TODO e l'input è parte da \todo[inline]{partenza con $s_0$ come viene fatta? $h_0$ com'è?}
 %Si può notare come questa sia la rivisitazione del tipico input randomico $z$ di una generica GAN.
 Il primo token, o stato di partenza, è un token particolare che si indica con $s_0$.
-Lo stato $h_0$ di partenza può essere fissato oppure selezionato casualmente in modo da modificare il punto di partenza (simili all'input $z$ per i VAE).
+Lo stato $h_0$ di partenza può essere fissato oppure selezionato casualmente così da da modificare il punto di partenza (simili all'input $z$ per i VAE).
 L'obiettivo del generatore $ G_\theta $ è quello di produrre una sequenza a partire dallo stato $s_0$ che massimizzi il \emph{reward} totale, in formule:
 $$
 J(\theta) = \E[R_t | s_0, \theta ] =
@@ -96,7 +96,7 @@ min_\phi
 - \E_{Y \sim p_{real}} [ log D_\phi (Y) ]
 - \E_{Y \sim G_\theta} [ log ( 1 - D_\phi(Y))]
 $$
-L'algoritmo del train illustrato in \cite{SeqGAN} è riportato in {Algorithm \ref{alg:SeqGAN}}.
+L'algoritmo del train illustrato in \cite{SeqGAN} è riportato in \textbf{Algorithm \ref{alg:SeqGAN}}.
 \begin{algorithm}
   \caption{Sequence Generative Adversarial Nets}
   \label{alg:SeqGAN}
@@ -136,7 +136,7 @@ La prima è una tecnica molto conosciuta che permette di evitare che la rete imp
 Con il \emph{Dropout} si va ad azzerare casualmente una percentuale dei pesi della rete, in questo modo la si obbliga ad astrarre maggiormente l'informazione.
 Inoltre questo rafforza la resistenza e l'efficienza della rete perché sarà in grado di portare a termine il compito anche in mancanza di nodi interni.
 Con la \emph{L2 regularization} si effettua una scolatura dell'errore così da evitare il \emph{gradient vanishing}. %\todo{magari mettere formula ed allungare spiegazione}
-In \cite{SeqGAN} è anche possibile trovare una valutazione dettagliata delle prestazioni delle SeqGAN rispetto ad altri modelli e su tre casi$ $d'uso differenti.
+In \cite{SeqGAN} è anche possibile trovare una valutazione dettagliata delle prestazioni delle SeqGAN rispetto ad altri modelli e su tre casi d'uso differenti.
 
 
 \subsection{LeakGAN}
@@ -171,8 +171,7 @@ In formule si ha
 in cui $h_t$ è \emph{hidden state} del Worker, mentre $\alpha$ viene usato per bilanciare esplorazione e sfruttamento (\emph{exploration and exploitation}).
 In generale avrà un valore alto durante il \emph{training} per favorire l'esplorazione, avrà invece un valore basso durante la generazione di quelle sequenze che poi verranno usate per allenare $D$.
 
-\todo{spiegare meglio train G? Rescaled $R_t$?}
-
+%\todo{spiegare meglio train G? Rescaled $R_t$?}
 
 Un'altra importante modifica riguarda l'\emph{interleaved training}: si alternano allenamento tramite GAN ed allenamento tramite metodo supervisionato (MLE), anziché effettuare soltanto GAN dopo il \emph{pre-train}.
 Questo evita il \emph{mode collapse} obbligando $G$ a rimanere aderente alla vera distribuzione degli esempi reali, evitando quindi che si specializzi su casi particolari con cui confondere $D$.

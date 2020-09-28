@@ -4,7 +4,7 @@
 
 
 \section{RL}
-Il \emph{Reinforcement Learning} (RL), assieme al \emph{Supervised Learning} ed all'\emph{Unsupervised Learning}, è il terzo paradigma di apprendimento autonomo.
+Il \emph{Reinforcement Learning} (RL), assieme al \emph{Supervised Learning} ed al \emph{Unsupervised Learning}, è il terzo paradigma di apprendimento autonomo.
 Gli ultimi due paradigmi sfruttano un dataset, rispettivamente con e senza label, per portare a termine un specifico task oppure generare nuova informazione.
 Nel caso del RL il dataset viene sostituito con un ambiente (\emph{environment}) nel quale il modello può eseguire delle azioni e osservarne le conseguenze, quindi come l'ambiente viene modificato dall'azione appena compiuta.
 In questo paradigma il modello viene anche chiamato ``agente'' e l'elenco, discreto oppure continuo, delle azioni eseguibili prende il nome di \emph{action space}.
@@ -37,8 +37,8 @@ L'idea è fornire alla rete, detta anche \emph{Q-Network} \cite{DQN}, lo stato c
 $$
 argmax_a Q(s_t, a) %\quad\textrm{con $Q(\cdot)$ approssimata da una rete}
 $$
-Procedendo in questo modo per ogni stato che si incontra $s_{t+i}$ con $i=1,2,\dots$ è possibile seguire una policy $\pi(s)$ ottimale ad ogni passo.
-La policy $\pi(s)$ è una politica di scelta che associa uno stato ad un'azione, con lo scopo di ottenere un buon guadagno sul lungo termine.
+Procedendo in questo modo per ogni stato che si incontra $s_{t+i}$ con $i=1,2,\dots$ è possibile seguire una \emph{policy} $\pi(s)$ ottimale ad ogni passo.
+La \emph{policy} $\pi(s)$ è una politica di scelta che associa uno stato ad un'azione, con lo scopo di ottenere un buon guadagno sul lungo termine.
 Si trova una strategia ottimale quando ogni scelta fatta seguendo la $\pi$ è ottimale.
 
 %\todo[inline]{qui mettere loss function e spiegarla?}
@@ -58,26 +58,27 @@ a =
 \pi(s) \sim P(a|s) \quad\textrm{in cui } \int_{a = - \inf}^{\inf} P(a | s) = 1
 $$
 Poiché $P(a|s)  = \mathcal{N}(\mu,\sigma ^2)$ si può fare in modo che la rete dia in output direttamente il vettore della medie $\mu$ e il vettore delle varianze $\sigma^2$.
-L'allenamento incomincia con l'inizializzazione dell'agente e dell'ambiente, poi l'agente segue la sua policy corrente fino a terminazione mentre tutti gli stati, le azioni e i reward vengono registrati.
-Infine si aumenta la probabilità delle azioni che hanno portato a reward positivi e si decrementa la probabilità delle azioni con reward negativo, fatto ciò si effettua nuovamente l'inizializzazione in modo da valutare la policy aggiornata. 
-Notare che definire il concetto di ``terminazione'' non è sempre ovvio e può corrispondere, ad esempio, all'esecuzione di un numero limitato di azioni oppure al ricevimento di un grande reward negativo.
-L'aggiornamento dei pesi della rete, quindi della policy, viene effettuato tramite \emph{gradient descent} usando la \emph{loss}
+Questo è utile perché, come succedeva per i VAE, risolve il problema della differenziabilità dell'operazione di \emph{sampling} di $z$.
+L'allenamento incomincia con l'inizializzazione dell'agente e dell'ambiente, poi l'agente segue la sua \emph{policy} corrente fino a terminazione mentre tutti gli stati, le azioni e i \emph{reward} vengono registrati.
+Infine si aumenta la probabilità delle azioni che hanno portato a \emph{reward} positivi e si decrementa la probabilità delle azioni con \emph{reward} negativo, fatto ciò si effettua nuovamente l'inizializzazione in modo da valutare la \emph{policy} aggiornata. 
+Notare che definire il concetto di ``terminazione'' non è sempre ovvio e può corrispondere, ad esempio, all'esecuzione di un numero limitato di azioni oppure al ricevimento di un grande \emph{reward} negativo.
+L'aggiornamento dei pesi della rete, quindi della \emph{policy}, viene effettuato tramite \emph{gradient descent} usando la \emph{loss}
 $$
 loss = - log P(a_t | s_t ) R_t
 $$
-Il logaritmo indica la probabilità logaritmica con cui $a_t$ viene scelta allo stato $s_t$ mentre $R_t$ è il valore atteso del reward totale che si guadagnerà.
+Il logaritmo indica la probabilità logaritmica con cui $a_t$ viene scelta allo stato $s_t$ mentre $R_t$ è il valore atteso del \emph{reward} totale che si guadagnerà.
 Se $R_t$ è positivo allora converrà aumentare la probabilità di selezionare $a_t$, viceversa se è negativo conviene diminuire la probabilità.
 Il \emph{Policy Gradient} è il gradiente relativo a questa particolare \emph{loss}.
 Rimane comunque critico il calcolo di $R_t$.
 Usando i \emph{Monte Carlo Rollouts} è possibile approssimare questo valore.
 In particolare, a partire dallo stato corrente, vengono generate (``srotolate'' da \emph{rollout}) svariate strategie seguendo la \emph{policy} corrente.
-Così facendo si può stimare un range di valori raggiungibili ed effettuare una media di questi valori.
-L'algoritmo appena descritto prende il nome di REINFORCE ed è può essere diviso in quattro passaggi:
+Così facendo si può stimare un \emph{range} di valori raggiungibili ed effettuare una media di questi valori.
+L'algoritmo appena descritto prende il nome di REINFORCE e può essere diviso in quattro passaggi:
 \begin{enumerate}
-  \item dallo stato corrente $s_t$ si esegue varie volte $\phi{s_t}$ fino a terminazione;
+  \item dallo stato corrente $s_t$ si esegue varie volte $\pi(s_t)$ fino a terminazione;
   \item si effettua la media dei \emph{reward} ottenuti da ogni esecuzione;
-  \item si usa il valore ottenuto per aggiornarne la rete;
-  \item si estrae un azione $a_t$ dalla distribuzione $\phi{s_t}$ e si ripete dal punto 1.
+  \item si usa il valore ottenuto per aggiornare la rete;
+  \item si estrae un azione $a_t$ dalla distribuzione $\pi(s_t)$ e si ripete dal punto 1.
 \end{enumerate}
 Nell'ambito del \emph{Reinforcement Learning} spesso i termini \emph{explore} ed \emph{exploit} vengono usati per indicare due momenti diversi del train della rete.
 Una rete viene usata in modalità \emph{explore} quando si vuole che sperimenti strategie nuove.
@@ -86,8 +87,7 @@ La modalità \emph{exploit}, invece, viene usata quando si vuole sfruttare le co
 %La transizione da una modalità all'altra è controllata da un valore detto ``di temperatura'' $\alpha$ 
 
 Quasi obbligatorio citare i risultati ottenuti da AlphaGO \cite{AlphaGO} ed AlphaZero \cite{AlphaZero} attraverso il RL.
-
-\todo[inline]{dire quattro parole?}
+Particolare interessante il fatto che sul primo modello è stato effettuato un \emph{pre-train} per simulare il comportamento umano, mentre il secondo è stato allenato esclusivamente (da zero) facendo giocare due agenti RL avversari nello stesso ambiente (la partita).
 
 
 

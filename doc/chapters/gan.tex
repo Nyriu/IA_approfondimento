@@ -5,7 +5,7 @@
 
 
 \section{GAN}
-Come illustrato nella lezione del MIT \cite{MIT_GEN}, uno tra i primi metodi che ha permesso la generare immagini sintetiche faceva uso di una particolare versione di \emph{Auto-Encoder}(AE), il \emph{Variational Auto-Encoder} (VAE).
+Come illustrato nella lezione del MIT \cite{MIT_GEN}, uno tra i primi metodi che ha permesso la generazione di immagini sintetiche faceva uso di una particolare versione di \emph{Auto-Encoder}(AE), il \emph{Variational Auto-Encoder} (VAE).
 Come nel caso degli AE classici, i VAE hanno una struttura che ricorda una clessidra: la prima metà della rete permette di comprimere l'input, mappandolo in quello che viene chiamato spazio latente, di minor dimensione rispetto allo spazio di partenza;  la seconda metà, invece, prende l'input compresso e lo mappa nello spazio di partenza.
 Il prodotto della decompressione viene chiamato ``input ricostruito''.
 Durante il training si vuole ottimizzare la compressione in modo che non ci sia perdita di informazione, ciò viene effettuato minimizzando la distanza tra input originale ed input ricostruito.
@@ -59,13 +59,13 @@ $D$ vuole massimizzare il valore atteso della probabilità (in questo caso logar
 Quindi nel caso del dato reale $D(x)$ dovrà avvicinarsi ad 1, mentre nell'altro caso si vorrà $D(G(z)) \simeq 0$.
 Al contempo $G$ vuole minimizzare la formula e, dato che può operare solo sul secondo addendo, tenderà ad indurre $D(G(z)) \simeq 1$.
 
-Rispetto ai $VAE$ le $GAN$ risultano non solo più intuitive ma permettono anche di raggiungere prestazioni veramente sorprendenti, come si può vedere in \cite{GAN_HD}, in cui anche gli esperti umani vengono ingannati dai prodotti della rete.
+Rispetto ai VAE le GAN risultano non solo più intuitive ma permettono anche di raggiungere prestazioni veramente sorprendenti, come si può vedere in \cite{GAN_HD}, in cui anche gli esperti umani vengono ingannati dai prodotti della rete.
 
 Va fatto notare però che le GAN sono notoriamente difficili da allenare, come riportato in \cite{HARD_GAN}.
 Già ad un livello intuitivo si può capire che partendo da reti senza conoscenze pregresse è molto difficile raggiungere buone prestazioni: entrambe le sotto-reti non hanno alcuna conoscenza del dominio e si chiede loro di guidarsi a vicenda.
-Quindi in molte applicazioni, ove possibile, conviene effettuare un \emph{pre-train} dei singoli $G$ e $D$ ed collegarli successivamente per formare l'architettura GAN.
+Quindi in molte applicazioni, ove possibile, conviene effettuare un \emph{pre-train} dei singoli $G$ e $D$ e collegarli successivamente per formare l'architettura GAN.
 Questo accorgimento comunque non evita un altro problema ben noto: quando il discriminatore converge rapidamente è possibile che dia una valutazione così bassa al generatore da rendere impossibile che $G$ possa migliorarsi.
-Quando $D(G(z))$ è pressoché zero si rischia il problema del \emph{vanishing gradient}, quindi i pesi di $G$ vengono aggiranti di un valore troppo piccolo bloccando l'esplorazione dello spazio di ricerca.
+Quando $D(G(z))$ è pressoché zero si rischia il problema del \emph{vanishing gradient}, quindi i pesi di $G$ vengono aggiornati di un valore troppo piccolo, bloccando l'esplorazione dello spazio di ricerca.
 
 Un altro problema difficile da evitare è quello del \emph{model collapse} che si verifica quando $G$ riproduce molto bene soltanto una piccola frazione del dominio.
 In questo modo riesce ad ottenere punteggi molto alti a discapito della generalità.
