@@ -45,43 +45,16 @@
 
 
 
-% Per blocchi di codice
-%\usepackage{listings}
-% Esempio di impostazione per listings
-%\stset{
-%   language=Octave,
-%   % language=Matlab,
-%   showspaces=false,
-%   showstringspaces=false,
-%   basicstyle=\ttfamily,
-%   %numbers=left,
-%   numbers=none,
-%   numberstyle=\small,
-%   mathescape,
-%}
-%\newcommand*\lstinputpath[1]{\lstset{inputpath=#1}}
-%\lstset{ % per apici e pedici nel codice
-%  mathescape,
-%  numbers=none
-%}
-%\lstset{ numbers=none }
-
-%\usepackage{listings}
-%
-%\definecolor{darkblue}{rgb}{0,0,.75}
-%%\lstloadlanguages{Matlab} %use listings with Matlab for Pseudocode
-%\lstnewenvironment{PseudoCode}[1][] {
-%  \lstset{
-%    mathescape=true,
-%    %language=Matlab,
-%    basicstyle=\scriptsize,
-%    keywordstyle=\color{darkblue},
-%    numbers=left ,
-%    xleftmargin=.04\textwidth,
-%    %#1
-%  }
-%}
-%{}
+\usepackage{listings}
+\lstset{
+  showspaces=false,
+  showstringspaces=false,
+  basicstyle=\ttfamily,
+  %numbers=left,
+  %numbers=none,
+  numberstyle=\small,
+  mathescape
+}
 
 \usepackage{algpseudocode,algorithm,algorithmicx}
 %\newcommand*\DNA{\textsc{dna}}
@@ -184,6 +157,7 @@
 %}
 
 %\pagenumbering{gobble} % TODO REMOVE
+
 
 %%\input{./chapters/x.tex}
 \input{./chapters/intro.tex}

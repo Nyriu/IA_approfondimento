@@ -4,8 +4,75 @@
 
 \section{Implementazione}
 Il codice delle LeakGAN può essere trovato nella repository GitHub
-\url{ https://github.com/CR-Gjx/LeakGAN }
+\url{ https://github.com/CR-Gjx/LeakGAN }.
+Nonostante ci siano implementazioni più recenti in {\tt Python3} ed in {\tt PyTorch} (
+\url{https://github.com/nurpeiis/LeakGAN-PyTorch}
+si è preferito analizzare il codice originale.
+Come indicato nella pagina principale del repository si hanno le seguenti dipendenze
+\begin{itemize}
+  \item {\tt Tensorflow r1.2.1}
+  \item {\tt Python 2.7}
+  \item {\tt CADA 7.5+ (For GPU)}
+\end{itemize}
+Per poter eseguire il codice è stato utilizzata un'immagine docker scaricabile ed eseguibile con
+\begin{lstlisting}
+> docker run --rm -p 8888:8888 -v ~/LeakGAN:/LeakGAN
+    tensorflow/tensorflow:1.2.1-gpu
+\end{lstlisting}
+L'immagine viene eseguita con accesso alla porta {\tt 8888}, sulla quale viene lanciato automaticamente Jupyter Notebook (\url{http://localhost:8888/tree}).
+L'immagine contiene già alcuni notebook con dei tutorial di TensorFlow.
+Usando il terminale di Jupyter ci si può spostare con \lstinline{cd /LeakGAN}, cartella esterna all'immagine, collegata tramite il comando \lstinline{-v ~/LeakGAN:/LeakGAN}.
+La repository fornisce tre esempi (Image COCO, No Temperature e Synthetic Data) nonostante i modelli \lstinline{LeakGANModel.py} e \lstinline{Discriminator.py} siano pressoché identici in ogni esempio.
+Gli esempi possono essere eseguiti con \lstinline{python Main.py} nella relativa cartella.
 
-\todo[inline]{Overview del codice di D e di G}
-\todo[inline]{Come eseguirlo usando il docker}
-\todo[inline]{Non ho fatto train xke ci metteva 8 anni col mio pc}
+Si vuole subito sottolineare che non è stato possible svolgere un train completo della rete, infatti la macchina su cui è stato eseguito il codice rendeva i tempi d'attesa inaccettabili.
+Si è anche tentato di ridurre la dimensione del dataset ImageCOCO (quindi anche della quantità di dati sintetici generati) ma senza riscontri positivi riguardo al tempo d'esecuzione.
+
+%La cartella è così strutturata:
+%\begin{lstlisting}
+%> pwd
+%/LeakGAN/Image COCO
+%> ls
+%Discriminator.py   LeakGANModel.py   Main.py    ckpts       dataloader.py   eval_bleu.py  speech
+%Discriminator.pyc  LeakGANModel.pyc  README.md  convert.py  dataloader.pyc  save
+%\end{lstlisting}
+
+%La struttura del file 
+%%, nel caso specifico dell'esempio Image COCO,
+%\lstinline{LeakGANModel.py} dell'esempio 
+
+La classe \lstinline{Discriminator} del file \lstinline{Discriminator.py} espone metodi per effettuare la \emph{feature extraction} del vettore $f_t$ e la classificazione di un input dato.
+La classe \lstinline{LeakGAN} del file \lstinline{LeakGAN.py} espone molti più metodi, tra cui si possono trovare:
+\begin{itemize}
+  \item il costruttore della classe permette di specificare vari parametri tra cui il discriminatore che si vuole usare, la lunghezza delle sequenze, la dimensione del vocabolario dei token e la dimensione dello spazio latente a cui il vettore $z$ appartiene;
+  \item una funzione per effettuare il \emph{rollout} secondo le modalità descritte sopra, specificando input di partenza ed $N$;
+  \item una funzione che permette di generare una sequenza sintetica;
+  \item funzioni per la creazione di Worker e Manager.
+\end{itemize}
+%\begin{lstlisting}
+%class LeakGAN(object):
+%    def __init__(
+%     self,               sequence_length,       num_classes,  vocab_size,
+%     emb_dim,            dis_emb_dim,           filter_sizes, num_filters,
+%     batch_size,         hidden_dim,            start_token,  goal_out_size,
+%     goal_size,          step_size,             D_model,      LSTMlayer_num=1,
+%     l2_reg_lambda=0.0,  learning_rate=0.001):
+%      ...
+%    def rollout(self,input_x,given_num):
+%      ...
+%    def update_feature_function(self,D_model):
+%      ...
+%    def pretrain_step(self, sess, x,dropout_keep_prob):
+%      ...
+%    def generate(self, sess,dropout_keep_prob,train = 1):
+%      ...
+%    def create_Worker_recurrent_unit(self, params):
+%      ...
+%    def create_Worker_output_unit(self, params):
+%      ...
+%    def create_Manager_recurrent_unit(self, params):
+%      ...
+%    def create_Manager_output_unit(self, params):
+%      ...
+%\end{lstlisting}
+

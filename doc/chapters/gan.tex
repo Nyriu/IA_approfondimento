@@ -11,18 +11,20 @@ Il prodotto della decompressione viene chiamato ``input ricostruito''.
 Durante il training si vuole ottimizzare la compressione in modo che non ci sia perdita di informazione, ciò viene effettuato minimizzando la distanza tra input originale ed input ricostruito.
 Nei VAE, in corrispondenza del punto della rete in cui si raggiunge il livello massimo di compressione (\emph{bottleneck}), invece di essere generato il vettore compresso $z$, viene prodotta una coppia di vettori $\sigma$ e $\mu$ che descrivono una distribuzione di probabilità dei vettori compressi.
 In questo modo è possibile campionare $z$ dalla distribuzione appena prima della decompressione.
-Il campionamento non è un'operazione differenziabile e questo rende inapplicabile l'algoritmo della $backpropagation$, quindi risulta necessario effettuare quello che viene chiamato \emph{reparametrization trick}.
+Notare che l'obiettivo dei VAE è differente da quello degli AE: con gli AE si vuole trovare una funzione di compressione in modo \emph{unsupervised}; mentre con i VAE si vuole ottenere $z$ che siano vicini alla compressione del dato di partenza per poi decomprimerli.
+Solitamente, dopo aver alleato un AE si sarà interessati principalmente nell'encoder, perché si vuole ottenere $z$, invece quando si allena un VAE si è interessati tanto all'enecoder quanto al decoder perché l'obiettivo è generare dati che siano variazione di quello di partenza.
+Il campionamento effettuato nel \emph{bottleneck} non è un'operazione differenziabile e questo rende inapplicabile l'algoritmo della $backpropagation$, quindi risulta necessario effettuare quello che viene chiamato \emph{reparametrization trick}.
 Rappresentando $z$ come $z = \mu + \sigma \odot \varepsilon$ in cui $\varepsilon \sim \mathcal{N}(0,1)$, $\varepsilon$ campionata da una distribuzione normale, è possible effettuare l'operazione di \emph{sampling} all'esterno della rete.
 In questo modo $\mu$ e $\sigma$ possono essere utilizzati per il calcolo del gradiente e quindi usati durante la \emph{backpropagation}.
 Un VAE allenato, poiché ha un \emph{bottleneck} non deterministico, permette di generare immagini con \emph{feature} simili a quelle fornite durante il training, inoltre è possibile modificare direttamente i valori del vettore $z$ per osservare che tipo di informazione rappresentano una volta decompressi.
-Nonostante questo tipo di rete sia in grado di dare risultati interessanti e permetta di comprendere meglio il significato degli spazi latenti, è strettamente legata alla dimensions del \emph{bottleneck}.
+Nonostante questo tipo di rete sia in grado di dare risultati interessanti e permetta di comprendere meglio il significato degli spazi latenti, è strettamente legata alla dimensione del \emph{bottleneck}.
 Quest'ultimo è un \emph{hyperparameter} perché dipende dalla forma della rete, quindi deve essere cercato manualmente.
 
 %Dopo questa breve panoramica sulle VAE, ispirata alla lezione del MIT \cite{MIT_GEN}, ci si accorge che sono una soluzione astuta ma complessa e che le loro prestazioni sono vincolate strettamente allo spazio latente che si è trovato durante il training.
 
 %TODO nota sul Disentanglement delle variabili che permette di avere controllo sulle singole caratteristiche delle immagini generate
 
-Le prestazioni dei VAE sono state superate da quelle dell GAN.
+Le prestazioni dei VAE sono state superate da quelle delle GAN.
 Le \emph{Generative Adversarial Network} (GAN) sono composte da due modelli che, citando \cite{GANTF}, \emph{``vengono addestrati simultaneamente da un processo contraddittorio. Un generatore ("l'artista") impara a creare immagini che sembrano reali, mentre un discriminatore ("il critico d'arte") impara a distinguere le immagini reali dai falsi''}.
 Riformulando la frase si può dire che una GAN, come si vede in \autoref{fig:gan}, è composta da due reti: la prima viene chiamata Generatore $G$ ed il suo scopo è fornire in output un $x_{fake}$ che sembri appartenere alla distribuzione del \emph{dataset} di dati reali fornito; la seconda, detta Discriminatore $D$, prende in input un $x_{fake}$ oppure un $x_{real}$ estratto dal \emph{dataset} e deve riuscire determinare se è reale oppure sintetico.
 Notare che le GAN non sono strettamente limitate ad immagini, infatti lo scopo dell'architettura è quello di produrre una buona approssimazione della distribuzione di probabilità del dataset attraverso una metrica dinamica determinata da D.
