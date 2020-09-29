@@ -129,9 +129,9 @@ su dati reali e dati generati dal $G$ appena creato.
 Ovviamente il \emph{train} di $D$ viene sempre effettuato su un insieme di sequenze per metà generato e per metà reale, così da non introdurre sbilanciamenti nelle probabilità.
 Interessate sottolineare che il discriminatore non è una \emph{Deep Neural Network} (DNN), come ci si potrebbe aspettare, ma una \emph{Convolutional Neural Network} (CNN).
 Nell'articolo viene spiegato come queste riescano a mantenere un'informazione localizza e quindi a creare legami tra parole vicine.
-Per poter applicare una CNN risulta necessario organizzare le frasi forma matriciale. \todo{maggiori dettagli sulla matrice}
+Per poter applicare una CNN risulta necessario organizzare le frasi forma matriciale. %\todo{maggiori dettagli sulla matrice}
 
-In \cite{SeqGAN} vengono utilizzate anche tecniche come \emph{Dropout} e \emph{L2 regularization} per evitare l'\emph{over-fitting}. \todo{ripassare L2}
+In \cite{SeqGAN} vengono utilizzate anche tecniche come \emph{Dropout} e \emph{L2 regularization} per evitare l'\emph{over-fitting}. %\todo{ripassare L2}
 La prima è una tecnica molto conosciuta che permette di evitare che la rete impari ``a memoria'' la distribuzione target.
 Con il \emph{Dropout} si va ad azzerare casualmente una percentuale dei pesi della rete, in questo modo la si obbliga ad astrarre maggiormente l'informazione.
 Inoltre questo rafforza la resistenza e l'efficienza della rete perché sarà in grado di portare a termine il compito anche in mancanza di nodi interni.
@@ -142,18 +142,19 @@ In \cite{SeqGAN} è anche possibile trovare una valutazione dettagliata delle pr
 \subsection{LeakGAN}
 Le LeakGAN sono state create per far fronte alla principale debolezza delle SeqGAN, ossia la difficoltà nel generare sequenze lunghe che siano convincenti.
 Se gli esperimenti delle SeqGAN mostravano affidabilità con sequenze fino a 20 token, le LeakGAN riescono a raggiungere lunghezze di 40 token, pur mantenendo coerenza e verosimiglianza.
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.8\textwidth]{leakgan.png}
+  \caption{Architettura di una LeakGAN \cite{LeakGAN}}
+  \label{fig:leakgan}
+\end{figure}
+
 Queste reti vengono presentate in \cite{LeakGAN} e si differenziano dalle precedenti per due motivi:
 \begin{itemize}
   \item si introduce una ``perdita'' (\emph{leak}) di informazione dal discriminatore al generatore.
     Le \emph{feature} che il primo estrae e su cui poi baserà la valutazione vengono fornite al secondo in modo da ricevere un'informazione molto più ricca di un semplice punteggio; 
   \item si introduce anche un nuovo modulo all'interno del generatore in modo da elaborare l'informazione che giunge da $D$ ed utilizzarla per poi decidere il token successivo.
 \end{itemize}
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=.7\textwidth]{leakgan.png}
-  \caption{Architettura di una LeakGAN \cite{LeakGAN}}
-  \label{fig:leakgan}
-\end{figure}
 Va subito fatto notare come la seconda modifica renda il generatore un generatore gerarchico, quindi composto da sottomoduli con specifici compiti.
 È altrettanto importante sottolineare che i sotto-compiti che il Manager richiede al Worker sono auto-determinati, infatti i risultati ottenuti dimostrano che il Manger è in grado di richiedere al Worker la generazione di punteggiature e particolari strutture.
 
@@ -177,6 +178,13 @@ Un'altra importante modifica riguarda l'\emph{interleaved training}: si alternan
 Questo evita il \emph{mode collapse} obbligando $G$ a rimanere aderente alla vera distribuzione degli esempi reali, evitando quindi che si specializzi su casi particolari con cui confondere $D$.
 La modifica viene mostrata in modo esplicito a riga 4 del pseudocodice \textbf{Algorithm \ref{alg:LeakGAN}}.
 Notare come vengano mostrati esplicitamente i parametri del Worker e del Manager, specificando che vengono aggiornati indipendentemente.
+
+I risultati riportati in \cite{LeakGAN} mostrano come le LeakGAN siano in grado di superare le già buone prestazioni delle SeqGAN su sequenze di 20 token e come le superino notevolmente con sequenze lunghe 40 token.
+Interessante anche il grafico ottenuto tramite PCA che permette di ottenere una visualizzazione della capacità delle LeakGAN di raggiungere lo spazio delle feature dei dati reali.
+
+In \autoref{tab:esempi} vengono esposti quattro esempi generati da LeakGAN e SeqGAN allenate con le didascalie del dataset COCO.
+\clearpage
+
 \begin{algorithm}
   \caption{Adversarial Training with Leaked Information}
   \label{alg:LeakGAN}
@@ -204,11 +212,6 @@ Notare come vengano mostrati esplicitamente i parametri del Worker e del Manager
   \end{algorithmic}
 \end{algorithm}
 
-I risultati riportati in \cite{LeakGAN} mostrano come le LeakGAN siano in grado di superare le già buone prestazioni delle SeqGAN su sequenze di 20 token e come le superino notevolmente con sequenze lunghe 40 token.
-Interessante anche il grafico ottenuto tramite PCA che permette di ottenere una visualizzazione della capacità delle LeakGAN di raggiungere lo spazio delle feature dei dati reali.
-
-
-In \autoref{tab:esempi} vengono esposti quattro esempi generati da LeakGAN e SeqGAN allenate con le didascalie del dataset COCO.
 \begin{table}[ht]
 \centering
 \begin{tabular}{|l|} 
