@@ -22,6 +22,7 @@
 %\usepackage{amsmath}
 %\usepackage{lipsum} 
 
+\usepackage{algpseudocode,algorithm,algorithmicx}
 
  
 % ================================ %
@@ -30,6 +31,7 @@
 \newcommand\E{\ensuremath{\mathbb{E}}}
 \newcommand\T{\ensuremath{\mathbb{T}}}
 \renewcommand\inf{\ensuremath{\infty}}
+
 
 
 
@@ -183,17 +185,43 @@ Where $P_{real(x)}$ is the probability distribution of the real data and $P_z(x)
 \begin{frame}
 \frametitle{Reinforcement Learning}
 \begin{figure}[ht]
-  \includegraphics[width=\textwidth]{RL_key_concept.png}
-  \includegraphics[width=\textwidth]{Discounted_Total_Reward.png}
+  \includegraphics[width=\textwidth]{RL_schema.png}
 \end{figure}
+
+\textrm{Total Reward (Return)}
+$$
+\quad R_t = \sum_{i=t}^{\inf} r_i = r_t + r_{t+1} + \dots + r_{t+n} + \dots
+$$
+\textrm{Discounted Total Reward (Return)}
+$$
+\quad R_t = \sum_{i=t}^{\inf} \gamma^i r_i = \gamma^t r_t + \gamma^{t+1} r_{t+1} + \dots + \gamma^{t+n} r_{t+n} + \dots
+$$
+
+%\begin{figure}[ht]
+%  \includegraphics[width=\textwidth]{RL_key_concept.png}
+%  \includegraphics[width=\textwidth]{Discounted_Total_Reward.png}
+%\end{figure}
 \end{frame}
 
 \begin{frame}
-\frametitle{template}
-\begin{figure}[ht]
-  \includegraphics[width=\textwidth]{Q-Function.png}
-  \includegraphics[width=.5\textwidth]{Policy_Fun.png}
-\end{figure}
+\frametitle{Quality Function}
+%$$
+%R_t = r_t + \gamma r_{t+1} + \gamma^{2} r_{t+2} + \dots
+%$$
+The quality function, also called Q-function, is the expected total future reward an agent in state $s_t$ can receive by doing action $a_t$
+$$
+Q(s_t, a_t) = \E [ R_t | s_t, a_t]
+$$
+\\
+The policy that the agent follows is
+$$
+\pi (s_t) = argmax_a Q(s_t, a)
+$$
+
+%\begin{figure}[ht]
+%  \includegraphics[width=\textwidth]{Q-Function.png}
+%  \includegraphics[width=.5\textwidth]{Policy_Fun.png}
+%\end{figure}
 \end{frame}
 
 
@@ -206,27 +234,164 @@ Where $P_{real(x)}$ is the probability distribution of the real data and $P_z(x)
 %\end{frame}
 
 \begin{frame}
-\frametitle{template}
+\frametitle{QNN}
+It may be hard to find manually a good Q-Function
+\\
+We can use an NN to estimate $Q(s_t, a)$ for all possible actions $a$
 \begin{figure}[ht]
-  \includegraphics[width=\textwidth]{QNN.png}
+  %\includegraphics[width=\textwidth]{QNN.png}
+  \includegraphics[width=\textwidth]{QNN_01.png}
 \end{figure}
+This solution is limited to discrete action space
 \end{frame}
 
 \begin{frame}
-\frametitle{template}
+\frametitle{Policy Gradient}
+What if we need to use an agent within a continuous action space?
 \begin{figure}[ht]
   \includegraphics[width=\textwidth]{Pol_Grad.png}
 \end{figure}
 \end{frame}
 
+\begin{frame}
+\frametitle{Policy Gradient}
+The loss used in Policy Gradient is
+$$
+loss = - logP(a_t| s_t) R_t
+$$
+so we weight the expected return (total reward in the future) with the probability of taking the action that gives this specific return
+\\
+\vspace{1cm}
+Remember that the network chooses the next action using $\pi (s) \sim P(a|s)$
+\end{frame}
 
 \begin{frame}
-\frametitle{template}
+\frametitle{N-Monte Carlo Rollouts}
+$$
+loss = - logP(a_t| s_t) R_t
+$$
+$R_t$ is a sum over infinity so we need to approximate it
+\\
+To do so we can use the Monte Carlo Rollouts:
+\begin{itemize}
+  \item use the current policy on current state $\pi(s_t)$ to calculate $N$ possible outcomes to state $s_{t+n}$ in the future
+  \item sum all the $N$ rewards $r_i^k$ where $i=t, \dots, t+n$ and $k = 1, \dots, N$
+  \item divide by $N$, so get the mean of the expected future reward from state $s_t$ with action $a_t$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{REINFORCE}
+The REINFORCE Algorithm:
+\begin{enumerate}
+  \item from current state $s_t$ execute several times $\pi(s_t)$ until termination or state $s_{t+n}$
+  \item calculate the mean of the expected future reward
+  \item use the just calculated $R_t$ in the loss, and update the network
+  \item sample an $a_t$ from the resulting distribution $\pi(s_t)$, and repeat from 1
+\end{enumerate}
+Notice that step 1 and 4 are an explore and exploit step, respectively
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% GAN + RL for text
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{GAN + RL for text}
+We want to generate long sequences of words (tokens) that resemble human generated sentences
+\\
+To tackle this difficult problem we use an RNN-based GAN architecture with an RL approach for the Generator
+\\
+\vspace{0.5cm}
+The SeqGAN are the first kind of network presented and can generate sequences up to 20 tokens
+\\
+\vspace{0.5cm}
+The LeakGAN are based on the previous but are more robust and can generate really good results with sentences of 40 words
+\end{frame}
+
+\begin{frame}
+\frametitle{SeqGAN}
+The Sequential GAN architecture
 \begin{figure}[ht]
   \includegraphics[width=\textwidth]{SeqGAN_Idea.png}
-  \includegraphics[width=.2\textwidth]{RNN.png}
 \end{figure}
 \end{frame}
+
+\begin{frame}
+\frametitle{SeqGAN}
+The schema of the RNN used inside the Generator of a SeqGAN
+\begin{figure}[ht]
+  \includegraphics[width=.6\textwidth]{RNN_01.png}
+  %\includegraphics[height=.4\textheight]{RNN_01.png}
+\end{figure}
+The first blue dot is a noise $z$ and the last pink dot is a special ``End Of Sequence'' token 
+\\
+In the case of SeqGAN EOS is generated after 20 tokens
+\end{frame}
+
+\begin{frame}
+\frametitle{Loss Function for G}
+$$
+J(\theta) = \E[R_t | s_0, \theta ] =
+\sum_{y_1 \in \T}
+G_\theta ( y_1 | s_0) \cdot
+Q_{D_\phi}^{G_\theta} ( s_0, y_1)
+$$
+where $G_\theta$ is the generator with parameters $\theta$ and $ Q_{D_\phi}^{G_\theta} (s, a) $
+is the future reward gained by doing action $a$ in state $s$ following the policy given by $G_\theta$
+\\
+Note that $\T$ is the action space composed by all the legal tokens (words) and $s_0$ is the noise vector $z$
+\end{frame}
+
+\begin{frame}
+\frametitle{Loss Function for G}
+We need to estimate $ Q_{D_\phi}^{G_\theta} ( s_{t-1}, y_t) $
+\\
+To do so we use an N-Monte Carlo Search
+$$
+\{ 
+  Y_{1:T}^1,
+  \dots,
+  Y_{1:T}^N
+\}
+=
+MC (Y_{1:t}; N)
+$$
+where $Y_{1:T}^N$ is a complete sequence composed by a fixed prefix $Y_{1:t}^N$ and a variable suffix $Y_{t+1:T}^N$
+\\
+\vspace{.3cm}
+So we estimate
+$$
+Q_{D_\phi}^{G_\theta}
+( s = Y_{1:t-1} ,
+a = y_t)
+=
+\left\{\begin{array}{lr}
+    \dfrac{1}{N} \sum_{n=1}^N D_\phi (Y_{1:T}^n) ,\; Y_{1:T}^n \in MC(Y_{1:t};N)
+      & \textrm{for } t < T \\
+
+    D_\phi (Y_{1:t}) & \textrm{for } t = T
+
+\end{array}\right.
+$$
+\end{frame}
+
+\begin{frame}
+\frametitle{SeqGAN}
+\begin{figure}[ht]
+  \includegraphics[width=\textwidth]{SeqGAN_Idea.png}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{SeqGAN Algorithm}
+\begin{figure}[ht]
+  \includegraphics[width=\textwidth]{SeqGAN_Alg.png}
+\end{figure}
+\end{frame}
+
+
 
 %\begin{frame}
 %\frametitle{template}
